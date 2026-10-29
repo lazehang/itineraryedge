@@ -17,7 +17,7 @@
 - **Worker A API:** `POST /api/itineraries`, `GET /api/itineraries?email=`, `GET /api/itineraries/:id?email=`
 - **Email-as-identity:** find or create `global_profiles` by email (no OTP / magic link).
 - **Single traveler** drafts stored in D1 with `payload_json` TravelItinerary v1 (`is_premium_unlocked = 0`).
-- Destination country is persisted on the itinerary row via the stay segment `location` inside `payload_json` (no extra D1 columns beyond Iteration 1).
+- `destination_country` is stored on the `universal_itineraries` D1 row and mirrored into the stay segment `location` in `payload_json`.
 
 **No Stripe**, no private premium repository, and no third-party premium dependencies in these iterations.
 
