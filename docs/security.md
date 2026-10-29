@@ -27,6 +27,17 @@ ItineraryEdge is **not production-ready**. A **security audit is in progress**; 
 
 The public repository must **never** contain Stripe SDK server code, webhook handlers with signing secrets, or committed API keys.
 
+## CORS (Worker A — staging / production)
+
+Cross-origin browser calls to the core worker only receive `Access-Control-Allow-Origin` when the request `Origin` matches an allowlist. Configure worker vars before exposing staging or production:
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `APP_ORIGIN` | **Yes** in staging and production | Primary web app origin (e.g. `https://app.example.com`) |
+| `ALLOWED_ORIGINS` | Optional | Comma-separated extra origins (preview URLs, alternate hosts) |
+
+If neither variable is set, local `wrangler dev` keeps permissive behavior (reflect any `Origin`, or `*` when no `Origin` header is sent). **Staging and production must set `APP_ORIGIN`** so arbitrary sites cannot read API JSON cross-origin (SEC-003). Disallowed `OPTIONS` preflight returns **403** without ACAO.
+
 ## Mock unlock gating
 
 `POST /api/itineraries/:id/unlock-mock` returns **403** `MOCK_UNLOCK_DISABLED` unless `ALLOW_MOCK_UNLOCK=1` on the core worker. Production deployments should leave this unset.

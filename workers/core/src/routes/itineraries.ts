@@ -55,11 +55,11 @@ export async function handleItinerariesRoute(
       const email = url.searchParams.get("email");
       const auth = await requireProfileForEmail(request, env.DB, email);
       if (!auth.ok) {
-        return jsonResponse(request, auth.body, { status: auth.status });
+        return jsonResponse(request, env, auth.body, { status: auth.status });
       }
 
       const items = await listItinerariesForProfile(env.DB, auth.profileId);
-      return jsonResponse(request, { email: auth.email, itineraries: items });
+      return jsonResponse(request, env, { email: auth.email, itineraries: items });
     }
 
     if (request.method === "POST") {
@@ -67,12 +67,12 @@ export async function handleItinerariesRoute(
       try {
         body = await request.json();
       } catch {
-        return jsonResponse(request, { error: "Invalid JSON body." }, { status: 400 });
+        return jsonResponse(request, env, { error: "Invalid JSON body." }, { status: 400 });
       }
 
       const validated = validateCreateItineraryInput(body);
       if (!validated.ok) {
-        return jsonResponse(request, { errors: validated.errors }, { status: 422 });
+        return jsonResponse(request, env, { errors: validated.errors }, { status: 422 });
       }
 
       const profile = await findOrCreateProfileByEmail(
@@ -83,10 +83,10 @@ export async function handleItinerariesRoute(
 
       const itinerary = await insertItinerary(env.DB, profile.id, validated.value);
 
-      return jsonResponse(request, { itinerary }, { status: 201 });
+      return jsonResponse(request, env, { itinerary }, { status: 201 });
     }
 
-    return jsonResponse(request, { error: "Method not allowed." }, { status: 405 });
+    return jsonResponse(request, env, { error: "Method not allowed." }, { status: 405 });
   }
 
   const unlockMockMatch = /^\/api\/itineraries\/([^/]+)\/unlock-mock\/?$/.exec(pathname);
@@ -95,7 +95,7 @@ export async function handleItinerariesRoute(
     const email = url.searchParams.get("email");
     const auth = await requireProfileForEmail(request, env.DB, email);
     if (!auth.ok) {
-      return jsonResponse(request, auth.body, { status: auth.status });
+      return jsonResponse(request, env, auth.body, { status: auth.status });
     }
 
     return handleUnlockMockRoute(request, env, id, auth.profileId);
@@ -107,7 +107,7 @@ export async function handleItinerariesRoute(
     const email = url.searchParams.get("email");
     const auth = await requireProfileForEmail(request, env.DB, email);
     if (!auth.ok) {
-      return jsonResponse(request, auth.body, { status: auth.status });
+      return jsonResponse(request, env, auth.body, { status: auth.status });
     }
 
     return handlePdfRoute(
@@ -127,7 +127,7 @@ export async function handleItinerariesRoute(
     const email = url.searchParams.get("email");
     const auth = await requireProfileForEmail(request, env.DB, email);
     if (!auth.ok) {
-      return jsonResponse(request, auth.body, { status: auth.status });
+      return jsonResponse(request, env, auth.body, { status: auth.status });
     }
 
     return handlePdfRoute(
@@ -147,7 +147,7 @@ export async function handleItinerariesRoute(
     const email = url.searchParams.get("email");
     const auth = await requireProfileForEmail(request, env.DB, email);
     if (!auth.ok) {
-      return jsonResponse(request, auth.body, { status: auth.status });
+      return jsonResponse(request, env, auth.body, { status: auth.status });
     }
 
     return handleGenerateRoute(request, env, id, auth.profileId);
@@ -157,21 +157,21 @@ export async function handleItinerariesRoute(
   if (detailMatch) {
     const id = detailMatch[1];
     if (request.method !== "GET") {
-      return jsonResponse(request, { error: "Method not allowed." }, { status: 405 });
+      return jsonResponse(request, env, { error: "Method not allowed." }, { status: 405 });
     }
 
     const email = url.searchParams.get("email");
     const auth = await requireProfileForEmail(request, env.DB, email);
     if (!auth.ok) {
-      return jsonResponse(request, auth.body, { status: auth.status });
+      return jsonResponse(request, env, auth.body, { status: auth.status });
     }
 
     const itinerary = await getItineraryById(env.DB, id);
     if (!itinerary || itinerary.profileId !== auth.profileId) {
-      return jsonResponse(request, { error: "Itinerary not found." }, { status: 404 });
+      return jsonResponse(request, env, { error: "Itinerary not found." }, { status: 404 });
     }
 
-    return jsonResponse(request, { itinerary });
+    return jsonResponse(request, env, { itinerary });
   }
 
   return null;

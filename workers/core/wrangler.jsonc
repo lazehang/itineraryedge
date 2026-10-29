@@ -7,8 +7,13 @@
     "enabled": true
   },
   // Replace database_id after `wrangler d1 create itineraryedge-global` in your account.
-  // Optional vars (use secrets for keys — do not commit):
-  // "vars": { "AI_PROVIDER": "openai", "ALLOW_MOCK_UNLOCK": "1" },
+  // Optional vars (use `wrangler secret put BYOK_AI_KEY` for keys — do not commit):
+  // "vars": {
+  //   "AI_PROVIDER": "openai",
+  //   "ALLOW_MOCK_UNLOCK": "1",
+  //   "APP_ORIGIN": "https://your-pages-host.pages.dev",
+  //   "ALLOWED_ORIGINS": "https://preview.example.com"
+  // },
   "d1_databases": [
     {
       "binding": "DB",
