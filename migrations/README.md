@@ -2,6 +2,8 @@
 
 SQL migrations for the **itineraryedge-global** D1 database (profiles, itineraries, ledger).
 
+Migration `0004` adds nullable unique Stripe ids on `global_ledger` for idempotent checkout/webhook writes from the private billing worker.
+
 Worker A (`workers/core`) references this directory via `migrations_dir` in Wrangler.
 
 ```bash

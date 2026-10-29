@@ -7,8 +7,8 @@
     "enabled": true
   },
   // Replace database_id after `wrangler d1 create itineraryedge-global` in your account.
-  // Optional vars for hosted AI (use `wrangler secret put BYOK_AI_KEY` — do not commit):
-  // "vars": { "AI_PROVIDER": "openai" },
+  // Optional vars (use secrets for keys — do not commit):
+  // "vars": { "AI_PROVIDER": "openai", "ALLOW_MOCK_UNLOCK": "1" },
   "d1_databases": [
     {
       "binding": "DB",
