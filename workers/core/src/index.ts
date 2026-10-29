@@ -10,7 +10,7 @@ export interface Env {
 }
 
 const SERVICE = "itineraryedge-core";
-const VERSION = "0.4.0";
+const VERSION = "0.5.0";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -45,6 +45,8 @@ export default {
           "GET /api/itineraries/:id",
           "POST /api/itineraries/:id/generate",
           "GET /api/itineraries/:id/pdf",
+          "GET /api/itineraries/:id/pdf/polished",
+          "POST /api/itineraries/:id/unlock-mock",
         ],
       });
     }
