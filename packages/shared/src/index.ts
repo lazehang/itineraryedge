@@ -53,3 +53,9 @@ export {
   type GeoPricingCurrency,
   type GeoPricingDisplay,
 } from "./geo-pricing";
+
+export {
+  premiumUnlockBadgeLabel,
+  TRAVEL_PACKET_COPY,
+  type PremiumUnlockBadgeKind,
+} from "./travel-packet-copy";

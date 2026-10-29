@@ -124,7 +124,12 @@ export async function unlockMockPremium(
   }>(response);
 
   if (!response.ok || !body.itinerary) {
-    return { ok: false, message: body.error ?? "Could not unlock demo premium." };
+    const message =
+      body.error ??
+      (response.status === 403
+        ? "Mock unlock is disabled in this environment."
+        : "Could not unlock demo premium.");
+    return { ok: false, message };
   }
 
   return {

@@ -2,37 +2,66 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ITINERARY_DISCLAIMER } from "@itineraryedge/shared";
-import { getCoreApiBaseUrl, unlockMockPremium } from "@/lib/core-api";
+import {
+  formatUnlockPriceLine,
+  ITINERARY_DISCLAIMER,
+  premiumUnlockBadgeLabel,
+  TRAVEL_PACKET_COPY,
+  type PremiumUnlockBadgeKind,
+} from "@itineraryedge/shared";
+import { createPremiumCheckoutSession } from "@/lib/billing-api";
+import { getAppBaseUrl } from "@/lib/env";
+import { getCoreApiBaseUrl, getItinerary, unlockMockPremium } from "@/lib/core-api";
 
 type Props = {
   itineraryId: string;
   email: string;
   hasGeneration: boolean;
   initialUnlocked: boolean;
+  destinationCountry: string | null;
+  allowMockUnlock: boolean;
+  checkoutReturn: "success" | "cancel" | null;
 };
 
 type DownloadTarget = "standard" | "polished";
 type DownloadState = "idle" | "loading";
 type UnlockState = "idle" | "loading" | "success" | "error";
+type CheckoutState = "idle" | "loading" | "error";
 
 export function TravelPacketCard({
   itineraryId,
   email,
   hasGeneration,
   initialUnlocked,
+  destinationCountry,
+  allowMockUnlock,
+  checkoutReturn,
 }: Props) {
   const router = useRouter();
   const [unlocked, setUnlocked] = useState(initialUnlocked);
+  const [unlockKind, setUnlockKind] = useState<PremiumUnlockBadgeKind | null>(
+    initialUnlocked ? "premium" : null,
+  );
   const [downloadState, setDownloadState] = useState<DownloadState>("idle");
   const [activeDownload, setActiveDownload] = useState<DownloadTarget | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [unlockState, setUnlockState] = useState<UnlockState>("idle");
   const [unlockError, setUnlockError] = useState<string | null>(null);
+  const [checkoutState, setCheckoutState] = useState<CheckoutState>("idle");
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [checkoutLag, setCheckoutLag] = useState(false);
 
   useEffect(() => {
     setUnlocked(initialUnlocked);
-  }, [initialUnlocked]);
+    if (initialUnlocked && unlockKind === null) {
+      setUnlockKind("premium");
+    }
+  }, [initialUnlocked, unlockKind]);
+
+  const priceLine = useMemo(
+    () => formatUnlockPriceLine(destinationCountry),
+    [destinationCountry],
+  );
 
   const pdfUrlFor = useCallback(
     (variant: DownloadTarget) => {
@@ -76,7 +105,7 @@ export function TravelPacketCard({
             if (body.code === "NOT_GENERATED") {
               message = "Generate the schedule first.";
             } else if (body.code === "LOCKED") {
-              message = "Unlock the demo premium polished PDF first.";
+              message = "Unlock the polished PDF first.";
             } else if (body.error) {
               message = body.error;
             }
@@ -110,8 +139,78 @@ export function TravelPacketCard({
     [filenameFor, hasGeneration, pdfUrlFor, unlocked],
   );
 
-  const onUnlock = useCallback(async () => {
+  const refreshUnlockFromServer = useCallback(async (): Promise<boolean> => {
+    const itinerary = await getItinerary(itineraryId, email);
+    if (itinerary?.isPremiumUnlocked) {
+      setUnlocked(true);
+      setUnlockKind("premium");
+      router.refresh();
+      return true;
+    }
+    return false;
+  }, [email, itineraryId, router]);
+
+  useEffect(() => {
+    if (checkoutReturn !== "success" || unlocked) {
+      return;
+    }
+
+    let cancelled = false;
+    setCheckoutLag(false);
+
+    void (async () => {
+      const maxAttempts = 15;
+      for (let attempt = 0; attempt < maxAttempts && !cancelled; attempt += 1) {
+        if (await refreshUnlockFromServer()) {
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+      if (!cancelled) {
+        setCheckoutLag(true);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [checkoutReturn, refreshUnlockFromServer, unlocked]);
+
+  const onPayToUnlock = useCallback(async () => {
     if (unlocked) {
+      return;
+    }
+
+    setCheckoutState("loading");
+    setCheckoutError(null);
+
+    const appBase = getAppBaseUrl();
+    const returnBase = new URL(`${appBase}/itineraries/${itineraryId}`);
+    returnBase.searchParams.set("email", email);
+    const successUrl = new URL(returnBase);
+    successUrl.searchParams.set("checkout", "success");
+    const cancelUrl = new URL(returnBase);
+    cancelUrl.searchParams.set("checkout", "cancel");
+
+    const result = await createPremiumCheckoutSession({
+      itineraryId,
+      email,
+      successUrl: successUrl.toString(),
+      cancelUrl: cancelUrl.toString(),
+      destinationCountry,
+    });
+
+    if (!result.ok) {
+      setCheckoutError(result.message);
+      setCheckoutState("error");
+      return;
+    }
+
+    window.location.assign(result.checkoutUrl);
+  }, [destinationCountry, email, itineraryId, unlocked]);
+
+  const onMockUnlock = useCallback(async () => {
+    if (unlocked || !allowMockUnlock) {
       return;
     }
 
@@ -126,22 +225,28 @@ export function TravelPacketCard({
     }
 
     setUnlocked(true);
+    setUnlockKind("demo");
     setUnlockState("success");
     router.refresh();
-  }, [email, itineraryId, router, unlocked]);
+  }, [allowMockUnlock, email, itineraryId, router, unlocked]);
 
   const standardEnabled = hasGeneration;
   const polishedEnabled = hasGeneration && unlocked;
 
   const polishedHelper = useMemo(() => {
     if (!hasGeneration) {
-      return "Generate the schedule first, then download the polished PDF.";
+      return "Generate the schedule first, then unlock the polished PDF.";
     }
     if (!unlocked) {
-      return "Demo premium layout — unlock below (no charge) to enable download.";
+      return allowMockUnlock
+        ? "Premium layout — pay to unlock, or use staging demo unlock below."
+        : "Premium layout — pay to unlock to enable download.";
     }
-    return "Demo premium layout — download the denser polished travel packet.";
-  }, [hasGeneration, unlocked]);
+    return "Premium layout — download the denser polished travel packet.";
+  }, [allowMockUnlock, hasGeneration, unlocked]);
+
+  const unlockedBadgeLabel =
+    unlocked && unlockKind ? premiumUnlockBadgeLabel(unlockKind) : null;
 
   return (
     <section className="card stack" style={{ marginTop: "1rem" }}>
@@ -149,11 +254,32 @@ export function TravelPacketCard({
         <h2 className="section-title">Travel packet</h2>
         <div className="packet-badges">
           <span className="badge">Standard</span>
-          {unlocked ? <span className="badge badge-unlocked">Demo unlocked</span> : null}
+          {allowMockUnlock ? (
+            <span className="badge badge-premium">{TRAVEL_PACKET_COPY.testCheckoutChip}</span>
+          ) : null}
+          {unlockedBadgeLabel ? (
+            <span className="badge badge-unlocked">{unlockedBadgeLabel}</span>
+          ) : null}
         </div>
       </div>
 
       <p className="muted text-sm">{ITINERARY_DISCLAIMER}</p>
+
+      {checkoutReturn === "cancel" && !unlocked ? (
+        <div className="callout" role="status">
+          <p className="text-sm">Checkout was canceled — you can try again when ready.</p>
+        </div>
+      ) : null}
+
+      {checkoutReturn === "success" && !unlocked && checkoutState !== "error" ? (
+        <div className="callout" role="status">
+          <p className="text-sm">
+            {checkoutLag
+              ? "Payment received — waiting for unlock confirmation. Refresh in a moment if this persists (webhook lag)."
+              : "Confirming your payment…"}
+          </p>
+        </div>
+      ) : null}
 
       <div className="packet-row">
         <div className="packet-row__main">
@@ -181,7 +307,11 @@ export function TravelPacketCard({
         <div className="packet-row__main">
           <div className="packet-row__title">
             <strong>Polished PDF</strong>
-            <span className="badge badge-premium">Demo premium</span>
+            <span className="badge badge-premium">
+              {allowMockUnlock
+                ? TRAVEL_PACKET_COPY.polishedBadgeDemo
+                : TRAVEL_PACKET_COPY.polishedBadgePremium}
+            </span>
           </div>
           <p className="muted text-sm">{polishedHelper}</p>
         </div>
@@ -207,35 +337,53 @@ export function TravelPacketCard({
 
       {!unlocked ? (
         <div className="callout stack unlock-block">
-          <p className="text-sm">
-            Demo unlock only — no Stripe checkout and no charge. Unlocks the polished PDF layout for
-            this itinerary.
-          </p>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void onUnlock()}
-            disabled={unlockState === "loading"}
-            aria-busy={unlockState === "loading"}
-          >
-            {unlockState === "loading"
-              ? "Unlocking…"
-              : "Unlock polished PDF (demo — no charge)"}
-          </button>
+          <p className="text-sm">{priceLine}</p>
+          <div className="unlock-actions">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => void onPayToUnlock()}
+              disabled={checkoutState === "loading"}
+              aria-busy={checkoutState === "loading"}
+            >
+              {checkoutState === "loading"
+                ? "Starting checkout…"
+                : TRAVEL_PACKET_COPY.payToUnlock}
+            </button>
+            {allowMockUnlock ? (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => void onMockUnlock()}
+                disabled={unlockState === "loading"}
+                aria-busy={unlockState === "loading"}
+              >
+                {unlockState === "loading"
+                  ? "Unlocking…"
+                  : TRAVEL_PACKET_COPY.demoUnlockStaging}
+              </button>
+            ) : null}
+          </div>
+          {checkoutState === "error" && checkoutError ? (
+            <div className="error-panel" role="alert">
+              <strong>Checkout failed</strong>
+              <p>{checkoutError}</p>
+            </div>
+          ) : null}
           {unlockState === "error" && unlockError ? (
             <div className="error-panel" role="alert">
-              <strong>Unlock failed</strong>
+              <strong>Demo unlock failed</strong>
               <p>{unlockError}</p>
             </div>
           ) : null}
         </div>
       ) : null}
 
-      {unlockState === "success" ? (
+      {unlockState === "success" && unlockKind === "demo" ? (
         <p className="text-sm" role="status">
           {hasGeneration
-            ? "Demo premium unlocked for this itinerary — you can download the polished PDF above."
-            : "Demo premium unlocked for this itinerary — generate the schedule first, then download the polished PDF."}
+            ? "Demo unlocked for this itinerary — you can download the polished PDF above."
+            : "Demo unlocked — generate the schedule first, then download the polished PDF."}
         </p>
       ) : null}
     </section>
