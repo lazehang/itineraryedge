@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # ItineraryEdge documentation
 
 Plain markdown reference for the open-core **ItineraryEdge** monorepo ([GitHub](https://github.com/lazehang/itineraryedge)). For a quick local start, see the [root README](../README.md).
@@ -13,6 +12,7 @@ Plain markdown reference for the open-core **ItineraryEdge** monorepo ([GitHub](
 | [api-core.md](./api-core.md) | Public HTTP API on `workers/core` |
 | [checkout-contract.md](./checkout-contract.md) | Interface between Pages and Worker B (no secrets) |
 | [contributing.md](./contributing.md) | PR and commit conventions |
+| [versioning.md](./versioning.md) | Changesets, Version Packages PR, GitHub Releases from tags (no npm publish) |
 | [security.md](./security.md) | Identity model, audit status, secret handling |
 
 ## Related repositories
@@ -22,10 +22,3 @@ Plain markdown reference for the open-core **ItineraryEdge** monorepo ([GitHub](
 ## Disclaimer
 
 PDFs and schedules from ItineraryEdge are **supporting travel packets only**. They are **not** visas, consular decisions, or guarantees of admission.
-=======
-# Documentation
-
-## Table of contents
-
-- [Versioning and releases](./versioning.md)
->>>>>>> 51bef59 (Add Changesets and GitHub Release workflows)
