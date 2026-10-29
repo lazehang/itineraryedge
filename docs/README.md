@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ItineraryEdge documentation
 
 Plain markdown reference for the open-core **ItineraryEdge** monorepo ([GitHub](https://github.com/lazehang/itineraryedge)). For a quick local start, see the [root README](../README.md).
@@ -21,3 +22,10 @@ Plain markdown reference for the open-core **ItineraryEdge** monorepo ([GitHub](
 ## Disclaimer
 
 PDFs and schedules from ItineraryEdge are **supporting travel packets only**. They are **not** visas, consular decisions, or guarantees of admission.
+=======
+# Documentation
+
+## Table of contents
+
+- [Versioning and releases](./versioning.md)
+>>>>>>> 51bef59 (Add Changesets and GitHub Release workflows)

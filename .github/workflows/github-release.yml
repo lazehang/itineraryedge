@@ -1,0 +1,67 @@
+name: GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: github-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build release notes from CHANGELOG
+        id: notes
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          CHANGELOG="CHANGELOG.md"
+          NOTES=""
+          if [[ -f "$CHANGELOG" ]]; then
+            NOTES=$(awk -v ver="$TAG" '
+              BEGIN { found=0 }
+              /^## / {
+                if (found) { exit }
+                if ($2 == ver) { found=1; next }
+              }
+              found { print }
+            ' "$CHANGELOG")
+          fi
+          if [[ -n "$NOTES" ]]; then
+            printf '%s\n' "$NOTES" > release-notes.md
+            echo "has_notes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No CHANGELOG section for version ${TAG}; using generated release notes." >&2
+            echo "has_notes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish GitHub Release (changelog body)
+        if: steps.notes.outputs.has_notes == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+
+      - name: Publish GitHub Release (generated notes)
+        if: steps.notes.outputs.has_notes != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
