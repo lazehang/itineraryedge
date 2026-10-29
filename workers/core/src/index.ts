@@ -1,16 +1,23 @@
+import { jsonResponse, preflightResponse } from "./cors.js";
+import { handleItinerariesRoute } from "./routes/itineraries.js";
+
 export interface Env {
   DB: D1Database;
 }
 
 const SERVICE = "itineraryedge-core";
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    if (request.method === "OPTIONS") {
+      return preflightResponse(request);
+    }
+
     const { pathname } = new URL(request.url);
 
     if (pathname === "/health" || pathname === "/health/") {
-      return Response.json({
+      return jsonResponse(request, {
         ok: true,
         service: SERVICE,
         version: VERSION,
@@ -19,14 +26,19 @@ export default {
       });
     }
 
+    const itineraryResponse = await handleItinerariesRoute(request, env, pathname);
+    if (itineraryResponse) {
+      return itineraryResponse;
+    }
+
     if (pathname === "/" || pathname === "") {
-      return Response.json({
+      return jsonResponse(request, {
         service: SERVICE,
         version: VERSION,
-        routes: ["/health"],
+        routes: ["/health", "GET/POST /api/itineraries", "GET /api/itineraries/:id"],
       });
     }
 
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return jsonResponse(request, { error: "Not found" }, { status: 404 });
   },
 } satisfies ExportedHandler<Env>;
