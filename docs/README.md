@@ -12,6 +12,7 @@ Plain markdown reference for the open-core **ItineraryEdge** monorepo ([GitHub](
 | [api-core.md](./api-core.md) | Public HTTP API on `workers/core` |
 | [checkout-contract.md](./checkout-contract.md) | Interface between Pages and Worker B (no secrets) |
 | [contributing.md](./contributing.md) | PR and commit conventions |
+| [versioning.md](./versioning.md) | Changesets, Version Packages PR, GitHub Releases from tags (no npm publish) |
 | [security.md](./security.md) | Identity model, audit status, secret handling |
 
 ## Related repositories

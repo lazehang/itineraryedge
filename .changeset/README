@@ -1,0 +1,17 @@
+# Changesets
+
+This monorepo uses [Changesets](https://github.com/changesets/changesets) for version management and release notes.
+
+We use a **fixed** version group: `itineraryedge`, `@itineraryedge/web`, `@itineraryedge/shared`, and `@itineraryedge/core-worker` always share the same version. Packages are **not** published to npm.
+
+## Adding a changeset
+
+When your PR includes a user-visible or release-worthy change, add a changeset from the repo root:
+
+```bash
+pnpm changeset
+```
+
+Follow the prompts (patch / minor / major and a short summary). Commit the generated file under `.changeset/`.
+
+See [docs/versioning.md](../docs/versioning.md) for the full workflow.
