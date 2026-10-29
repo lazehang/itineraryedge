@@ -7,10 +7,12 @@ export interface Env {
   AI_PROVIDER?: string;
   /** Optional server-side BYOK fallback (never commit real keys) */
   BYOK_AI_KEY?: string;
+  /** Set to "1" to enable POST …/unlock-mock (local/staging only; off in production) */
+  ALLOW_MOCK_UNLOCK?: string;
 }
 
 const SERVICE = "itineraryedge-core";
-const VERSION = "0.5.0";
+const VERSION = "0.6.0";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {

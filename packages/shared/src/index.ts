@@ -46,3 +46,16 @@ export {
   runSameDayGuards,
   type SameDayGuardResult,
 } from "./same-day-guard";
+
+export {
+  formatUnlockPriceLine,
+  resolveGeoPricingDisplay,
+  type GeoPricingCurrency,
+  type GeoPricingDisplay,
+} from "./geo-pricing";
+
+export {
+  premiumUnlockBadgeLabel,
+  TRAVEL_PACKET_COPY,
+  type PremiumUnlockBadgeKind,
+} from "./travel-packet-copy";

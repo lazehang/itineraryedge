@@ -4,17 +4,20 @@ import type { TravelItinerary } from "@itineraryedge/shared";
 import { Disclaimer } from "@/components/Disclaimer";
 import { TravelPacketCard } from "@/components/TravelPacketCard";
 import { GenerateCard } from "@/components/GenerateCard";
+import { isMockUnlockAllowedInWeb } from "@/lib/env";
 import { getItinerary } from "@/lib/core-api";
 
 type PageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ email?: string }>;
+  searchParams: Promise<{ email?: string; checkout?: string }>;
 };
 
 export default async function ItineraryDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
-  const { email: rawEmail } = await searchParams;
+  const { email: rawEmail, checkout: rawCheckout } = await searchParams;
   const email = rawEmail?.trim().toLowerCase();
+  const checkoutReturn =
+    rawCheckout === "success" ? "success" : rawCheckout === "cancel" ? "cancel" : null;
 
   if (!email) {
     return (
@@ -82,6 +85,9 @@ export default async function ItineraryDetailPage({ params, searchParams }: Page
         itineraryId={itinerary.id}
         email={email}
         initialUnlocked={itinerary.isPremiumUnlocked}
+        destinationCountry={itinerary.destinationCountry}
+        allowMockUnlock={isMockUnlockAllowedInWeb()}
+        checkoutReturn={checkoutReturn}
         hasGeneration={Boolean(
           itinerary.flightSchedule &&
             itinerary.hotelInventory &&

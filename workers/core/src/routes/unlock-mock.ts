@@ -1,5 +1,6 @@
 import { jsonResponse } from "../cors.js";
 import { getItineraryById, unlockMockPremium } from "../db/itineraries.js";
+import { isMockUnlockAllowed } from "../env-flags.js";
 import type { Env } from "../index.js";
 
 export async function handleUnlockMockRoute(
@@ -10,6 +11,17 @@ export async function handleUnlockMockRoute(
 ): Promise<Response> {
   if (request.method !== "POST") {
     return jsonResponse(request, { error: "Method not allowed." }, { status: 405 });
+  }
+
+  if (!isMockUnlockAllowed(env)) {
+    return jsonResponse(
+      request,
+      {
+        error: "Mock unlock is disabled in this environment.",
+        code: "MOCK_UNLOCK_DISABLED",
+      },
+      { status: 403 },
+    );
   }
 
   const existing = await getItineraryById(env.DB, itineraryId);
