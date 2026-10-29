@@ -5,7 +5,7 @@ export {
   type ItineraryTraveler,
   type SegmentKind,
   type TravelItinerary,
-} from "./types.js";
+} from "./types";
 
 export {
   buildTravelItineraryPayload,
@@ -16,4 +16,4 @@ export {
   validateCreateItineraryInput,
   type CreateItineraryInput,
   type FieldErrors,
-} from "./validation.js";
+} from "./validation";

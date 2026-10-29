@@ -3,8 +3,8 @@ import { describe, it } from "node:test";
 import {
   buildTravelItineraryPayload,
   validateCreateItineraryInput,
-} from "./validation.js";
-import { ITINERARY_DISCLAIMER } from "./types.js";
+} from "./validation";
+import { ITINERARY_DISCLAIMER } from "./types";
 
 describe("validateCreateItineraryInput", () => {
   const valid = {

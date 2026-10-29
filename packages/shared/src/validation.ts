@@ -2,7 +2,7 @@ import {
   ITINERARY_DISCLAIMER,
   ITINERARY_SCHEMA_VERSION,
   type TravelItinerary,
-} from "./types.js";
+} from "./types";
 
 const ISO_ALPHA2 = /^[A-Z]{2}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
