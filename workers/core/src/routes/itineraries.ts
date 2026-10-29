@@ -10,6 +10,7 @@ import {
 } from "../db/itineraries.js";
 import { jsonResponse } from "../cors.js";
 import type { Env } from "../index.js";
+import { handleGenerateRoute } from "./generate.js";
 
 async function requireProfileForEmail(
   request: Request,
@@ -84,6 +85,18 @@ export async function handleItinerariesRoute(
     }
 
     return jsonResponse(request, { error: "Method not allowed." }, { status: 405 });
+  }
+
+  const generateMatch = /^\/api\/itineraries\/([^/]+)\/generate\/?$/.exec(pathname);
+  if (generateMatch) {
+    const id = generateMatch[1];
+    const email = url.searchParams.get("email");
+    const auth = await requireProfileForEmail(request, env.DB, email);
+    if (!auth.ok) {
+      return jsonResponse(request, auth.body, { status: auth.status });
+    }
+
+    return handleGenerateRoute(request, env, id, auth.profileId);
   }
 
   const detailMatch = /^\/api\/itineraries\/([^/]+)\/?$/.exec(pathname);

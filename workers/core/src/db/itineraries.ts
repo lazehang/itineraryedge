@@ -11,6 +11,9 @@ export type ItineraryRow = {
   title: string;
   payload_json: string;
   destination_country: string;
+  flight_schedule_json: string | null;
+  hotel_inventory_json: string | null;
+  sightseeing_timeline_json: string | null;
   is_premium_unlocked: number;
   created_at: string;
   updated_at: string;
@@ -22,10 +25,24 @@ export type ItineraryRecord = {
   title: string;
   destinationCountry: string | null;
   payload: unknown;
+  flightSchedule: unknown;
+  hotelInventory: unknown;
+  sightseeingTimeline: unknown;
   isPremiumUnlocked: boolean;
   createdAt: string;
   updatedAt: string;
 };
+
+function parseJsonColumn(raw: string | null): unknown {
+  if (!raw) {
+    return null;
+  }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
 
 function rowToRecord(row: ItineraryRow): ItineraryRecord {
   let payload: unknown;
@@ -45,6 +62,9 @@ function rowToRecord(row: ItineraryRow): ItineraryRecord {
     title: row.title,
     destinationCountry: destinationCountry || null,
     payload,
+    flightSchedule: parseJsonColumn(row.flight_schedule_json),
+    hotelInventory: parseJsonColumn(row.hotel_inventory_json),
+    sightseeingTimeline: parseJsonColumn(row.sightseeing_timeline_json),
     isPremiumUnlocked: row.is_premium_unlocked === 1,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -65,8 +85,10 @@ export async function insertItinerary(
   await db
     .prepare(
       `INSERT INTO universal_itineraries
-        (id, profile_id, title, payload_json, destination_country, is_premium_unlocked, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, 0, ?, ?)`,
+        (id, profile_id, title, payload_json, destination_country,
+         flight_schedule_json, hotel_inventory_json, sightseeing_timeline_json,
+         is_premium_unlocked, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, NULL, NULL, NULL, 0, ?, ?)`,
     )
     .bind(id, profileId, title, payloadJson, input.destinationCountry, now, now)
     .run();
@@ -77,6 +99,9 @@ export async function insertItinerary(
     title,
     payload_json: payloadJson,
     destination_country: input.destinationCountry,
+    flight_schedule_json: null,
+    hotel_inventory_json: null,
+    sightseeing_timeline_json: null,
     is_premium_unlocked: 0,
     created_at: now,
     updated_at: now,
@@ -89,7 +114,9 @@ export async function listItinerariesForProfile(
 ): Promise<ItineraryRecord[]> {
   const { results } = await db
     .prepare(
-      `SELECT id, profile_id, title, payload_json, destination_country, is_premium_unlocked, created_at, updated_at
+      `SELECT id, profile_id, title, payload_json, destination_country,
+              flight_schedule_json, hotel_inventory_json, sightseeing_timeline_json,
+              is_premium_unlocked, created_at, updated_at
        FROM universal_itineraries
        WHERE profile_id = ?
        ORDER BY created_at DESC`,
@@ -106,11 +133,39 @@ export async function getItineraryById(
 ): Promise<ItineraryRecord | null> {
   const row = await db
     .prepare(
-      `SELECT id, profile_id, title, payload_json, destination_country, is_premium_unlocked, created_at, updated_at
+      `SELECT id, profile_id, title, payload_json, destination_country,
+              flight_schedule_json, hotel_inventory_json, sightseeing_timeline_json,
+              is_premium_unlocked, created_at, updated_at
        FROM universal_itineraries WHERE id = ? LIMIT 1`,
     )
     .bind(id)
     .first<ItineraryRow>();
 
   return row ? rowToRecord(row) : null;
+}
+
+export async function persistGenerationArtifacts(
+  db: D1Database,
+  id: string,
+  bundle: {
+    flightSchedule: unknown;
+    hotelInventory: unknown;
+    sightseeingTimeline: unknown;
+  },
+): Promise<ItineraryRecord | null> {
+  const now = new Date().toISOString();
+  const flightJson = JSON.stringify(bundle.flightSchedule);
+  const hotelJson = JSON.stringify(bundle.hotelInventory);
+  const sightseeingJson = JSON.stringify(bundle.sightseeingTimeline);
+
+  await db
+    .prepare(
+      `UPDATE universal_itineraries
+       SET flight_schedule_json = ?, hotel_inventory_json = ?, sightseeing_timeline_json = ?, updated_at = ?
+       WHERE id = ?`,
+    )
+    .bind(flightJson, hotelJson, sightseeingJson, now, id)
+    .run();
+
+  return getItineraryById(db, id);
 }
