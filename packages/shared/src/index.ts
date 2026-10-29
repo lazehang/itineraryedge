@@ -5,4 +5,15 @@ export {
   type ItineraryTraveler,
   type SegmentKind,
   type TravelItinerary,
-} from "./types.js";
+} from "./types";
+
+export {
+  buildTravelItineraryPayload,
+  defaultItineraryTitle,
+  normalizeCountryCode,
+  normalizeEmail,
+  parseDestinationCountryFromPayload,
+  validateCreateItineraryInput,
+  type CreateItineraryInput,
+  type FieldErrors,
+} from "./validation";

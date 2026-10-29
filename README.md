@@ -4,13 +4,22 @@
 
 > **Disclaimer:** PDFs and schedules produced by ItineraryEdge are **supporting travel packets only**. They are **not** visas, consular decisions, or guarantees of admission.
 
-## Product (Iteration 1)
+## Product
 
-This repository scaffolds **Iteration 1**:
+### Iteration 1 (scaffold)
 
 - **Monorepo** with a Next.js App Router web shell (`apps/web`), **Worker A** API/core (`workers/core`), shared itinerary schema/types (`packages/shared`), and **D1 migrations** (`migrations/`).
 - **Worker A** exposes `GET /health` for deploy and connectivity checks.
-- **No Stripe**, no private premium repository, and no third-party premium dependencies in this iteration.
+
+### Iteration 2 (create + persist)
+
+- **Web routes:** `/`, `/itineraries/new`, `/itineraries`, `/itineraries/[id]`
+- **Worker A API:** `POST /api/itineraries`, `GET /api/itineraries?email=`, `GET /api/itineraries/:id?email=`
+- **Email-as-identity:** find or create `global_profiles` by email (no OTP / magic link).
+- **Single traveler** drafts stored in D1 with `payload_json` TravelItinerary v1 (`is_premium_unlocked = 0`).
+- `destination_country` is stored on the `universal_itineraries` D1 row and mirrored into the stay segment `location` in `payload_json`.
+
+**No Stripe**, no private premium repository, and no third-party premium dependencies in these iterations.
 
 ### Open core vs premium (roadmap)
 

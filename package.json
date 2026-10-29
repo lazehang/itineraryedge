@@ -10,6 +10,7 @@
   "scripts": {
     "lint": "pnpm -r --if-present run lint",
     "typecheck": "pnpm -r --if-present run typecheck",
+    "test": "pnpm -r --if-present run test",
     "dev:web": "pnpm --filter @itineraryedge/web dev",
     "dev:core": "pnpm --filter @itineraryedge/core-worker dev"
   },
