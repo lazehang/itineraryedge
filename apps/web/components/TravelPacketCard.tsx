@@ -209,7 +209,7 @@ export function TravelPacketCard({
         <div className="callout stack unlock-block">
           <p className="text-sm">
             Demo unlock only — no Stripe checkout and no charge. Unlocks the polished PDF layout for
-            this itinerary in your browser session.
+            this itinerary.
           </p>
           <button
             type="button"
@@ -222,12 +222,6 @@ export function TravelPacketCard({
               ? "Unlocking…"
               : "Unlock polished PDF (demo — no charge)"}
           </button>
-          {unlockState === "success" ? (
-            <p className="text-sm" role="status">
-              Demo premium unlocked — you can download the polished PDF after generating the
-              schedule.
-            </p>
-          ) : null}
           {unlockState === "error" && unlockError ? (
             <div className="error-panel" role="alert">
               <strong>Unlock failed</strong>
@@ -235,6 +229,14 @@ export function TravelPacketCard({
             </div>
           ) : null}
         </div>
+      ) : null}
+
+      {unlockState === "success" ? (
+        <p className="text-sm" role="status">
+          {hasGeneration
+            ? "Demo premium unlocked for this itinerary — you can download the polished PDF above."
+            : "Demo premium unlocked for this itinerary — generate the schedule first, then download the polished PDF."}
+        </p>
       ) : null}
     </section>
   );
