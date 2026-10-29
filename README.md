@@ -34,11 +34,13 @@ Run on your own Cloudflare account:
 
 **BYOK (optional):** The web UI can store one AI key in **sessionStorage** only (`itineraryedge:byok:ai`). Generate requests send it as the `X-BYOK-Key` header; keys are not written to D1 or localStorage. On the worker, set `AI_PROVIDER` to `openai` or `anthropic`, and optionally `BYOK_AI_KEY` as a server-side fallback (use `wrangler secret put`, never commit). If no key is present in the session or environment, generation uses the **mock** driver.
 
-### Download PDF (standard mode)
+### Travel packet PDFs (standard + polished demo unlock)
 
-After **Generate packet** succeeds, the itinerary detail page enables **Download PDF**. The worker compiles a raw multi-section PDF from the stored flight, hotel, and sightseeing JSON (`GET /api/itineraries/:id/pdf?email=…`). If generation has not run, the API returns **409** with `code: "NOT_GENERATED"` and the UI keeps the control disabled.
+After **Generate packet** succeeds, the itinerary detail **Travel packet** card enables **Standard PDF** download. The worker compiles a multi-section PDF from stored flight, hotel, and sightseeing JSON (`GET /api/itineraries/:id/pdf?email=…`). If generation has not run, the API returns **409** with `code: "NOT_GENERATED"` and the UI keeps downloads disabled.
 
-Standard-mode PDFs repeat the visa disclaimer in the document header, footer, and legal notice — they are **supporting travel packets only**, not visas or official consular documents.
+**Polished PDF** is a denser demo premium layout (cover page, QR placeholder, extra legal footer). It stays locked until you use **Unlock polished PDF (demo — no charge)** — `POST /api/itineraries/:id/unlock-mock?email=…` sets `is_premium_unlocked` idempotently (no Stripe). When unlocked, download via `GET …/pdf?variant=polished` or `GET …/pdf/polished`; if still locked, the API returns **403** with `code: "LOCKED"`.
+
+Standard and polished PDFs repeat visa disclaimers — **supporting travel packets only**, not visas or official consular documents. Payment / Stripe checkout is not implemented in this iteration.
 
 ## Development
 

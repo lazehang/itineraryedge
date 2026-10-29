@@ -169,3 +169,43 @@ export async function persistGenerationArtifacts(
 
   return getItineraryById(db, id);
 }
+
+export async function unlockMockPremium(
+  db: D1Database,
+  profileId: string,
+  itineraryId: string,
+): Promise<ItineraryRecord | null> {
+  const existing = await getItineraryById(db, itineraryId);
+  if (!existing || existing.profileId !== profileId) {
+    return null;
+  }
+
+  if (existing.isPremiumUnlocked) {
+    return existing;
+  }
+
+  const now = new Date().toISOString();
+  await db
+    .prepare(
+      `UPDATE universal_itineraries
+       SET is_premium_unlocked = 1, updated_at = ?
+       WHERE id = ? AND profile_id = ?`,
+    )
+    .bind(now, itineraryId, profileId)
+    .run();
+
+  await db
+    .prepare(
+      `INSERT INTO global_ledger (id, profile_id, event_type, amount_cents, currency, metadata_json, created_at)
+       VALUES (?, ?, 'mock_unlock', 0, 'USD', ?, ?)`,
+    )
+    .bind(
+      crypto.randomUUID(),
+      profileId,
+      JSON.stringify({ itineraryId, source: "mock_unlock" }),
+      now,
+    )
+    .run();
+
+  return getItineraryById(db, itineraryId);
+}

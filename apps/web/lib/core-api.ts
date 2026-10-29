@@ -106,6 +106,38 @@ export async function getItinerary(
   return body.itinerary ?? null;
 }
 
+export async function unlockMockPremium(
+  id: string,
+  email: string,
+): Promise<
+  | { ok: true; itinerary: ItineraryDetail; alreadyUnlocked: boolean }
+  | { ok: false; message: string }
+> {
+  const url = new URL(`${coreBaseUrl}/api/itineraries/${id}/unlock-mock`);
+  url.searchParams.set("email", email);
+
+  const response = await fetch(url, {
+    method: "POST",
+    cache: "no-store",
+  });
+
+  const body = await parseJsonResponse<{
+    itinerary?: ItineraryDetail;
+    unlock?: { alreadyUnlocked?: boolean };
+    error?: string;
+  }>(response);
+
+  if (!response.ok || !body.itinerary) {
+    return { ok: false, message: body.error ?? "Could not unlock demo premium." };
+  }
+
+  return {
+    ok: true,
+    itinerary: body.itinerary,
+    alreadyUnlocked: Boolean(body.unlock?.alreadyUnlocked),
+  };
+}
+
 export async function generateItinerary(
   id: string,
   email: string,

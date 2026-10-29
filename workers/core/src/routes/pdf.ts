@@ -9,7 +9,9 @@ import type { ItineraryRecord } from "../db/itineraries.js";
 import { getItineraryById } from "../db/itineraries.js";
 import { findProfileByEmail } from "../db/profiles.js";
 import type { Env } from "../index.js";
+import { compilePolishedPdf } from "../pdf/compile-polished-pdf.js";
 import { compileStandardPdf } from "../pdf/compile-standard-pdf.js";
+import { polishedPdfAccess, resolvePdfVariant, type PdfVariant } from "../pdf/pdf-access.js";
 
 function hasGenerationArtifacts(itinerary: ItineraryRecord): boolean {
   return Boolean(
@@ -58,6 +60,7 @@ export async function handlePdfRoute(
   itineraryId: string,
   profileId: string,
   profileEmail: string,
+  pathname: string,
 ): Promise<Response> {
   if (request.method !== "GET") {
     return pdfResponse(request, new Uint8Array(), {
@@ -66,11 +69,25 @@ export async function handlePdfRoute(
     });
   }
 
+  const url = new URL(request.url);
+  const variant = resolvePdfVariant(pathname, url.searchParams.get("variant"));
+
   const itinerary = await getItineraryById(env.DB, itineraryId);
   if (!itinerary || itinerary.profileId !== profileId) {
     return pdfResponse(request, new Uint8Array(), {
       status: 404,
       jsonError: { error: "Itinerary not found." },
+    });
+  }
+
+  const access = polishedPdfAccess(variant, itinerary.isPremiumUnlocked);
+  if (!access.allowed) {
+    return pdfResponse(request, new Uint8Array(), {
+      status: 403,
+      jsonError: {
+        error: "Polished PDF requires a demo premium unlock.",
+        code: access.code,
+      },
     });
   }
 
@@ -94,7 +111,7 @@ export async function handlePdfRoute(
 
   const profile = await findProfileByEmail(env.DB, profileEmail);
 
-  const compiled = await compileStandardPdf({
+  const compileInput = {
     itineraryId: itinerary.id,
     title: itinerary.title,
     destinationCountry: itinerary.destinationCountry,
@@ -104,7 +121,12 @@ export async function handlePdfRoute(
     flightSchedule,
     hotelInventory,
     sightseeingTimeline,
-  });
+  };
+
+  const compiled =
+    variant === "polished"
+      ? await compilePolishedPdf(compileInput)
+      : await compileStandardPdf(compileInput);
 
   if (!compiled.ok) {
     return pdfResponse(request, new Uint8Array(), {
@@ -113,9 +135,15 @@ export async function handlePdfRoute(
     });
   }
 
-  const filename = `itineraryedge-${itinerary.id}.pdf`;
+  const filename =
+    variant === "polished"
+      ? `itineraryedge-${itinerary.id}-polished.pdf`
+      : `itineraryedge-${itinerary.id}.pdf`;
+
   return pdfResponse(request, compiled.bytes, {
     status: 200,
     filename,
   });
 }
+
+export { type PdfVariant };
