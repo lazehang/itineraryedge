@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { TravelItinerary } from "@itineraryedge/shared";
 import { Disclaimer } from "@/components/Disclaimer";
-import { DownloadPdfControl } from "@/components/DownloadPdfControl";
+import { TravelPacketCard } from "@/components/TravelPacketCard";
 import { GenerateCard } from "@/components/GenerateCard";
 import { getItinerary } from "@/lib/core-api";
 
@@ -78,9 +78,10 @@ export default async function ItineraryDetailPage({ params, searchParams }: Page
 
       <GenerateCard itineraryId={itinerary.id} email={email} initialItinerary={itinerary} />
 
-      <DownloadPdfControl
+      <TravelPacketCard
         itineraryId={itinerary.id}
         email={email}
+        initialUnlocked={itinerary.isPremiumUnlocked}
         hasGeneration={Boolean(
           itinerary.flightSchedule &&
             itinerary.hotelInventory &&
