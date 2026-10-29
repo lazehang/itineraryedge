@@ -1,4 +1,4 @@
-const DEFAULT_ALLOWED_HEADERS = "Content-Type, Authorization";
+const DEFAULT_ALLOWED_HEADERS = "Content-Type, Authorization, X-BYOK-Key";
 
 export function corsHeaders(request: Request): HeadersInit {
   const origin = request.headers.get("Origin");

@@ -17,3 +17,32 @@ export {
   type CreateItineraryInput,
   type FieldErrors,
 } from "./validation";
+
+export {
+  GENERATION_SCHEMA_VERSION,
+  type FlightSegment,
+  type GenerationBundle,
+  type GenerationFlightSchedule,
+  type GenerationHotelInventory,
+  type GenerationSearchParams,
+  type GenerationSightseeingTimeline,
+  type GenerateErrorCode,
+  type HotelEntry,
+  type SightseeingDay,
+  type SightseeingItem,
+} from "./generation-types";
+
+export {
+  validateFlightSchedule,
+  validateGenerationBundle,
+  validateHotelInventory,
+  validateSearchParams,
+  validateSightseeingTimeline,
+} from "./generation-validation";
+
+export {
+  assertSightseeingTimelineFeasible,
+  assertTripSpanAllowsGeneration,
+  runSameDayGuards,
+  type SameDayGuardResult,
+} from "./same-day-guard";
