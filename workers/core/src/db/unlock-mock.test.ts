@@ -46,8 +46,12 @@ function createMockDb(initial: ItineraryState) {
             },
             async run() {
               if (sql.includes("UPDATE universal_itineraries")) {
-                itinerary.is_premium_unlocked = 1;
-                itinerary.updated_at = args[0] as string;
+                if (itinerary.is_premium_unlocked === 0) {
+                  itinerary.is_premium_unlocked = 1;
+                  itinerary.updated_at = args[0] as string;
+                  return { success: true, meta: { changes: 1 } };
+                }
+                return { success: true, meta: { changes: 0 } };
               }
               if (sql.includes("INSERT INTO global_ledger")) {
                 ledger.push({
@@ -55,7 +59,7 @@ function createMockDb(initial: ItineraryState) {
                   profile_id: args[1] as string,
                 });
               }
-              return { success: true };
+              return { success: true, meta: { changes: 1 } };
             },
           };
         },
