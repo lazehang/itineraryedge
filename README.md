@@ -18,7 +18,7 @@ flowchart LR
 | Piece | Role |
 | --- | --- |
 | `apps/web` | Next.js App Router UI |
-| `workers/core` | HTTP API (`/health`, itinerary CRUD, `POST /api/itineraries/:id/generate`) |
+| `workers/core` | HTTP API (`/health`, itinerary CRUD, `POST /api/itineraries/:id/generate`, `GET /api/itineraries/:id/pdf`) |
 | `packages/shared` | Shared types and validators |
 | `migrations/` | D1 SQL migrations |
 
@@ -33,6 +33,12 @@ Run on your own Cloudflare account:
 5. Deploy **Pages** from `apps/web` and set `NEXT_PUBLIC_CORE_WORKER_URL` to the worker URL.
 
 **BYOK (optional):** The web UI can store one AI key in **sessionStorage** only (`itineraryedge:byok:ai`). Generate requests send it as the `X-BYOK-Key` header; keys are not written to D1 or localStorage. On the worker, set `AI_PROVIDER` to `openai` or `anthropic`, and optionally `BYOK_AI_KEY` as a server-side fallback (use `wrangler secret put`, never commit). If no key is present in the session or environment, generation uses the **mock** driver.
+
+### Download PDF (standard mode)
+
+After **Generate packet** succeeds, the itinerary detail page enables **Download PDF**. The worker compiles a raw multi-section PDF from the stored flight, hotel, and sightseeing JSON (`GET /api/itineraries/:id/pdf?email=…`). If generation has not run, the API returns **409** with `code: "NOT_GENERATED"` and the UI keeps the control disabled.
+
+Standard-mode PDFs repeat the visa disclaimer in the document header, footer, and legal notice — they are **supporting travel packets only**, not visas or official consular documents.
 
 ## Development
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   GenerationFlightSchedule,
@@ -46,6 +47,7 @@ function isHotelInventory(value: unknown): value is GenerationHotelInventory {
 }
 
 export function GenerateCard({ itineraryId, email, initialItinerary }: Props) {
+  const router = useRouter();
   const [itinerary, setItinerary] = useState(initialItinerary);
   const [uiState, setUiState] = useState<UiState>(() =>
     initialItinerary.sightseeingTimeline ? "success" : "idle",
@@ -86,7 +88,8 @@ export function GenerateCard({ itineraryId, email, initialItinerary }: Props) {
     setItinerary(result.itinerary);
     setDriverName(result.driver);
     setUiState("success");
-  }, [email, hasTimeline, itineraryId]);
+    router.refresh();
+  }, [email, hasTimeline, itineraryId, router]);
 
   const onSaveByok = () => {
     writeByokKeyToSession(byokInput);

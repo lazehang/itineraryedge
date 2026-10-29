@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { TravelItinerary } from "@itineraryedge/shared";
 import { Disclaimer } from "@/components/Disclaimer";
+import { DownloadPdfControl } from "@/components/DownloadPdfControl";
 import { GenerateCard } from "@/components/GenerateCard";
 import { getItinerary } from "@/lib/core-api";
 
@@ -76,6 +77,16 @@ export default async function ItineraryDetailPage({ params, searchParams }: Page
       </section>
 
       <GenerateCard itineraryId={itinerary.id} email={email} initialItinerary={itinerary} />
+
+      <DownloadPdfControl
+        itineraryId={itinerary.id}
+        email={email}
+        hasGeneration={Boolean(
+          itinerary.flightSchedule &&
+            itinerary.hotelInventory &&
+            itinerary.sightseeingTimeline,
+        )}
+      />
 
       <section className="card stack" style={{ marginTop: "1rem" }}>
         <h2 className="section-title">Disclaimer</h2>
