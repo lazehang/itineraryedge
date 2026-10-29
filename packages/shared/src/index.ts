@@ -46,3 +46,10 @@ export {
   runSameDayGuards,
   type SameDayGuardResult,
 } from "./same-day-guard";
+
+export {
+  formatUnlockPriceLine,
+  resolveGeoPricingDisplay,
+  type GeoPricingCurrency,
+  type GeoPricingDisplay,
+} from "./geo-pricing";
