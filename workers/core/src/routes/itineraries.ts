@@ -19,7 +19,7 @@ async function requireProfileForEmail(
   db: D1Database,
   emailParam: string | null,
 ): Promise<
-  | { ok: true; profileId: string; email: string }
+  | { ok: true; profileId: string; email: string; displayName: string | null }
   | { ok: false; status: number; body: { error: string } }
 > {
   if (!emailParam) {
@@ -40,7 +40,7 @@ async function requireProfileForEmail(
     };
   }
 
-  return { ok: true, profileId: profile.id, email };
+  return { ok: true, profileId: profile.id, email, displayName: profile.display_name };
 }
 
 export async function handleItinerariesRoute(
@@ -110,7 +110,15 @@ export async function handleItinerariesRoute(
       return jsonResponse(request, auth.body, { status: auth.status });
     }
 
-    return handlePdfRoute(request, env, id, auth.profileId, auth.email, pathname);
+    return handlePdfRoute(
+      request,
+      env,
+      id,
+      auth.profileId,
+      auth.email,
+      auth.displayName,
+      pathname,
+    );
   }
 
   const pdfMatch = /^\/api\/itineraries\/([^/]+)\/pdf\/?$/.exec(pathname);
@@ -122,7 +130,15 @@ export async function handleItinerariesRoute(
       return jsonResponse(request, auth.body, { status: auth.status });
     }
 
-    return handlePdfRoute(request, env, id, auth.profileId, auth.email, pathname);
+    return handlePdfRoute(
+      request,
+      env,
+      id,
+      auth.profileId,
+      auth.email,
+      auth.displayName,
+      pathname,
+    );
   }
 
   const generateMatch = /^\/api\/itineraries\/([^/]+)\/generate\/?$/.exec(pathname);

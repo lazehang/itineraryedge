@@ -15,12 +15,31 @@ export const POLISHED_DEMO_FOOTER = "Polished (demo unlock)" as const;
 export const POLISHED_QR_PLACEHOLDER = "Verification QR (placeholder)" as const;
 export const POLISHED_COVER_HEADLINE = "SUPPORTING TRAVEL PACKET" as const;
 
+/** WinAnsi-safe text for StandardFonts (Helvetica) — strips CJK and other non-encodable code points. */
 export function sanitizeForPdf(text: string): string {
-  return text
+  const normalized = text
+    .normalize("NFKC")
     .replaceAll("→", "->")
     .replaceAll("–", "-")
     .replaceAll("—", "-")
-    .replaceAll("★", "*");
+    .replaceAll("★", "*")
+    .replaceAll("\u201c", '"')
+    .replaceAll("\u201d", '"')
+    .replaceAll("\u2018", "'")
+    .replaceAll("\u2019", "'");
+
+  let output = "";
+  for (const char of normalized) {
+    const code = char.codePointAt(0) ?? 0;
+    if (code <= 0x7e || (code >= 0xa0 && code <= 0xff)) {
+      output += char;
+    } else if (/\s/u.test(char)) {
+      output += " ";
+    } else {
+      output += "?";
+    }
+  }
+  return output;
 }
 
 export function wrapLine(text: string, font: PDFFont, size: number, maxWidth: number): string[] {

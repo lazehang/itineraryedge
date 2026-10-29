@@ -1,3 +1,5 @@
+import type { CreateItineraryInput } from "@itineraryedge/shared";
+
 const coreBaseUrl =
   process.env.NEXT_PUBLIC_CORE_WORKER_URL?.replace(/\/$/, "") ?? "http://127.0.0.1:8787";
 
@@ -47,15 +49,9 @@ export function getCoreApiBaseUrl(): string {
   return coreBaseUrl;
 }
 
-export async function createItinerary(input: {
-  email: string;
-  travelerName: string;
-  passportNationality: string;
-  destinationCountry: string;
-  startDate: string;
-  endDate: string;
-  title?: string;
-}): Promise<{ ok: true; itinerary: ItineraryDetail } | { ok: false; errors: Record<string, string> }> {
+export async function createItinerary(
+  input: CreateItineraryInput,
+): Promise<{ ok: true; itinerary: ItineraryDetail } | { ok: false; errors: Record<string, string> }> {
   const response = await fetch(`${coreBaseUrl}/api/itineraries`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

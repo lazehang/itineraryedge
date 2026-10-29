@@ -180,19 +180,19 @@ export async function unlockMockPremium(
     return null;
   }
 
-  if (existing.isPremiumUnlocked) {
-    return existing;
-  }
-
   const now = new Date().toISOString();
-  await db
+  const update = await db
     .prepare(
       `UPDATE universal_itineraries
        SET is_premium_unlocked = 1, updated_at = ?
-       WHERE id = ? AND profile_id = ?`,
+       WHERE id = ? AND profile_id = ? AND is_premium_unlocked = 0`,
     )
     .bind(now, itineraryId, profileId)
     .run();
+
+  if ((update.meta?.changes ?? 0) === 0) {
+    return getItineraryById(db, itineraryId);
+  }
 
   await db
     .prepare(

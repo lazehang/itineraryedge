@@ -7,7 +7,6 @@ import {
 import { pdfResponse } from "../cors.js";
 import type { ItineraryRecord } from "../db/itineraries.js";
 import { getItineraryById } from "../db/itineraries.js";
-import { findProfileByEmail } from "../db/profiles.js";
 import type { Env } from "../index.js";
 import { compilePolishedPdf } from "../pdf/compile-polished-pdf.js";
 import { compileStandardPdf } from "../pdf/compile-standard-pdf.js";
@@ -60,6 +59,7 @@ export async function handlePdfRoute(
   itineraryId: string,
   profileId: string,
   profileEmail: string,
+  profileDisplayName: string | null,
   pathname: string,
 ): Promise<Response> {
   if (request.method !== "GET") {
@@ -109,14 +109,12 @@ export async function handlePdfRoute(
     });
   }
 
-  const profile = await findProfileByEmail(env.DB, profileEmail);
-
   const compileInput = {
     itineraryId: itinerary.id,
     title: itinerary.title,
     destinationCountry: itinerary.destinationCountry,
     profileEmail,
-    profileDisplayName: profile?.display_name ?? null,
+    profileDisplayName,
     payload: asTravelItinerary(itinerary.payload),
     flightSchedule,
     hotelInventory,
