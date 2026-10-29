@@ -63,7 +63,7 @@ export async function handlePdfRoute(
   pathname: string,
 ): Promise<Response> {
   if (request.method !== "GET") {
-    return pdfResponse(request, new Uint8Array(), {
+    return pdfResponse(request, env, new Uint8Array(), {
       status: 405,
       jsonError: { error: "Method not allowed." },
     });
@@ -74,7 +74,7 @@ export async function handlePdfRoute(
 
   const itinerary = await getItineraryById(env.DB, itineraryId);
   if (!itinerary || itinerary.profileId !== profileId) {
-    return pdfResponse(request, new Uint8Array(), {
+    return pdfResponse(request, env, new Uint8Array(), {
       status: 404,
       jsonError: { error: "Itinerary not found." },
     });
@@ -82,7 +82,7 @@ export async function handlePdfRoute(
 
   const access = polishedPdfAccess(variant, itinerary.isPremiumUnlocked);
   if (!access.allowed) {
-    return pdfResponse(request, new Uint8Array(), {
+    return pdfResponse(request, env, new Uint8Array(), {
       status: 403,
       jsonError: {
         error: "Polished PDF requires a demo premium unlock.",
@@ -92,7 +92,7 @@ export async function handlePdfRoute(
   }
 
   if (!hasGenerationArtifacts(itinerary)) {
-    return pdfResponse(request, new Uint8Array(), {
+    return pdfResponse(request, env, new Uint8Array(), {
       status: 409,
       jsonError: { error: "Generation has not been run for this itinerary.", code: "NOT_GENERATED" },
     });
@@ -103,7 +103,7 @@ export async function handlePdfRoute(
   const sightseeingTimeline = asSightseeingTimeline(itinerary.sightseeingTimeline);
 
   if (!flightSchedule || !hotelInventory || !sightseeingTimeline) {
-    return pdfResponse(request, new Uint8Array(), {
+    return pdfResponse(request, env, new Uint8Array(), {
       status: 409,
       jsonError: { error: "Generation has not been run for this itinerary.", code: "NOT_GENERATED" },
     });
@@ -127,7 +127,7 @@ export async function handlePdfRoute(
       : await compileStandardPdf(compileInput);
 
   if (!compiled.ok) {
-    return pdfResponse(request, new Uint8Array(), {
+    return pdfResponse(request, env, new Uint8Array(), {
       status: 413,
       jsonError: { error: compiled.message, code: compiled.code },
     });
@@ -138,7 +138,7 @@ export async function handlePdfRoute(
       ? `itineraryedge-${itinerary.id}-polished.pdf`
       : `itineraryedge-${itinerary.id}.pdf`;
 
-  return pdfResponse(request, compiled.bytes, {
+  return pdfResponse(request, env, compiled.bytes, {
     status: 200,
     filename,
   });

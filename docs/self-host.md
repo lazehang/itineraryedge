@@ -42,6 +42,8 @@ Optional Wrangler **vars** / **secrets** on the core worker:
 
 | Name | Purpose |
 | --- | --- |
+| `APP_ORIGIN` | **Required in staging/production** — primary Pages origin for CORS (see [security.md](./security.md#cors-worker-a--staging--production)) |
+| `ALLOWED_ORIGINS` | Optional comma-separated extra CORS origins |
 | `ALLOW_MOCK_UNLOCK` | Set to `1` only in local/staging to allow `POST …/unlock-mock` |
 | `AI_PROVIDER` | `openai` or `anthropic` when using BYOK |
 | `BYOK_AI_KEY` | Server-side AI fallback — `wrangler secret put BYOK_AI_KEY` |

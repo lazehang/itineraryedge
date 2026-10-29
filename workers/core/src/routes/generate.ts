@@ -12,18 +12,19 @@ export async function handleGenerateRoute(
   profileId: string,
 ): Promise<Response> {
   if (request.method !== "POST") {
-    return jsonResponse(request, { error: "Method not allowed." }, { status: 405 });
+    return jsonResponse(request, env, { error: "Method not allowed." }, { status: 405 });
   }
 
   const itinerary = await getItineraryById(env.DB, id);
   if (!itinerary || itinerary.profileId !== profileId) {
-    return jsonResponse(request, { error: "Itinerary not found." }, { status: 404 });
+    return jsonResponse(request, env, { error: "Itinerary not found." }, { status: 404 });
   }
 
   const payload = itinerary.payload as TravelItinerary | null;
   if (!payload) {
     return jsonResponse(
       request,
+      env,
       {
         code: "VALIDATION",
         error: "Itinerary payload is missing or invalid.",
@@ -43,6 +44,7 @@ export async function handleGenerateRoute(
     const status = result.code === "BYOK" ? 401 : 422;
     return jsonResponse(
       request,
+      env,
       {
         code: result.code,
         error: result.message,
@@ -59,10 +61,10 @@ export async function handleGenerateRoute(
   });
 
   if (!updated) {
-    return jsonResponse(request, { error: "Could not persist generation output." }, { status: 500 });
+    return jsonResponse(request, env, { error: "Could not persist generation output." }, { status: 500 });
   }
 
-  return jsonResponse(request, {
+  return jsonResponse(request, env, {
     itinerary: updated,
     generation: {
       driver: result.driver,
