@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "itineraryedge-web",
+  "compatibility_date": "2025-10-29",
+  "observability": {
+    "enabled": true
+  }
+  // Cloudflare Pages: connect this project in the dashboard with the Next.js preset,
+  // or adopt OpenNext (@opennextjs/cloudflare) in a later iteration. No secrets here.
+}
