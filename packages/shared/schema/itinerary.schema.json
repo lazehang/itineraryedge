@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://itineraryedge.dev/schema/itinerary/v1.json",
+  "title": "ItineraryEdgeTravelItinerary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "title", "traveler", "segments", "disclaimer"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "traveler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["displayName"],
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "passportCountry": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 2,
+          "description": "ISO 3166-1 alpha-2"
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/segment"
+      }
+    },
+    "embassyNotes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      }
+    },
+    "disclaimer": {
+      "type": "string",
+      "const": "Supporting travel schedule packet only — not a visa, approval, or guarantee of entry."
+    }
+  },
+  "$defs": {
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "label", "startDate", "endDate"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["flight", "stay", "transfer", "activity"]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "location": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "confirmationRef": {
+          "type": "string",
+          "maxLength": 120
+        }
+      }
+    }
+  }
+}

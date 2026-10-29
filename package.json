@@ -1,0 +1,22 @@
+{
+  "name": "itineraryedge",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Open-core edge visa itinerary engine on Cloudflare",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "pnpm -r --if-present run lint",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "dev:web": "pnpm --filter @itineraryedge/web dev",
+    "dev:core": "pnpm --filter @itineraryedge/core-worker dev"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.4"
+  }
+}
