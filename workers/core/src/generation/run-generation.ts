@@ -1,4 +1,5 @@
 import {
+  assertTripSpanAllowsGeneration,
   runSameDayGuards,
   validateGenerationBundle,
   type GenerationBundle,
@@ -31,6 +32,15 @@ export async function runItineraryGeneration(input: {
       ok: false,
       code: "VALIDATION",
       message: "Itinerary payload is missing a stay segment with dates.",
+    };
+  }
+
+  const preAiSpan = assertTripSpanAllowsGeneration(context.startDate, context.endDate);
+  if (!preAiSpan.ok) {
+    return {
+      ok: false,
+      code: "SAME_DAY",
+      message: preAiSpan.message,
     };
   }
 
