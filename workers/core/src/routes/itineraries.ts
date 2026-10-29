@@ -11,6 +11,7 @@ import {
 import { jsonResponse } from "../cors.js";
 import type { Env } from "../index.js";
 import { handleGenerateRoute } from "./generate.js";
+import { handlePdfRoute } from "./pdf.js";
 
 async function requireProfileForEmail(
   request: Request,
@@ -85,6 +86,18 @@ export async function handleItinerariesRoute(
     }
 
     return jsonResponse(request, { error: "Method not allowed." }, { status: 405 });
+  }
+
+  const pdfMatch = /^\/api\/itineraries\/([^/]+)\/pdf\/?$/.exec(pathname);
+  if (pdfMatch) {
+    const id = pdfMatch[1];
+    const email = url.searchParams.get("email");
+    const auth = await requireProfileForEmail(request, env.DB, email);
+    if (!auth.ok) {
+      return jsonResponse(request, auth.body, { status: auth.status });
+    }
+
+    return handlePdfRoute(request, env, id, auth.profileId, auth.email);
   }
 
   const generateMatch = /^\/api\/itineraries\/([^/]+)\/generate\/?$/.exec(pathname);
