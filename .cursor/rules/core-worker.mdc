@@ -1,0 +1,13 @@
+---
+description: Conventions when editing the public core Worker A
+globs: workers/core/**/*
+alwaysApply: false
+---
+# Core worker (`workers/core`)
+
+- Public HTTP API only. Route map starts in `src/index.ts`; handlers under `src/routes/`.
+- Identity: `email` query/body (MVP). Do not invent OAuth/sessions here without human approval.
+- Tests: `node --test` via package `test` script; colocate `*.test.ts` next to code.
+- PDF: `src/pdf/`; polished requires unlock. Generation: `src/generation/` (mock + BYOK drivers).
+- Mock unlock: gated by `ALLOW_MOCK_UNLOCK` — local/staging only.
+- Docs: [docs/api-core.md](../../docs/api-core.md). Skill: `.cursor/skills/core-worker/SKILL.md`.

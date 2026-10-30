@@ -35,3 +35,7 @@ Add this trailer on commits you author for this repository when following mainta
 ## Security-sensitive changes
 
 Read [security.md](./security.md) before changing auth, unlock, or billing boundaries. Payment logic belongs in Worker B, not the public core.
+
+## Agents
+
+Local Cursor agents should follow [AGENTS.md](../AGENTS.md) and [ai-playbook.md](./ai-playbook.md), and load skills from [`.cursor/skills/`](../.cursor/skills/).

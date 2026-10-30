@@ -12,3 +12,5 @@ alwaysApply: true
 | Worker B | private `itineraryedge-billing` | Stripe Checkout + webhooks; sets `is_premium_unlocked` |
 
 Checkout/unlock shapes live in docs ([checkout-contract.md](../../docs/checkout-contract.md), [byok-and-unlock.md](../../docs/byok-and-unlock.md)) — not in secrets. Never add Stripe secrets or webhook handlers to this public repo.
+
+When editing those trees, also load skills: `core-worker`, `web-ui`, or `d1-migrations`.

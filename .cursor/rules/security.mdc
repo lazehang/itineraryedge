@@ -8,4 +8,5 @@ alwaysApply: true
 - **Mock unlock:** `ALLOW_MOCK_UNLOCK` and `NEXT_PUBLIC_ALLOW_MOCK_UNLOCK` are **local/staging only**. Never set on production. Checklist: [docs/staging-checklist.md](../../docs/staging-checklist.md).
 - **No secrets in git.** Stripe secret keys, webhook secrets, and Stripe SDK server code belong **only** in private [`itineraryedge-billing`](https://github.com/lazehang/itineraryedge-billing).
 - **Email-as-identity** (`email` query/body) is an MVP residual — treat as capability-style access, not auth.
+- Unlock / checkout contract docs: [byok-and-unlock.md](../../docs/byok-and-unlock.md), [checkout-contract.md](../../docs/checkout-contract.md).
 - Do not claim production-ready or invent audit-complete status; follow [docs/security.md](../../docs/security.md).

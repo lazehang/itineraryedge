@@ -1,0 +1,12 @@
+---
+description: D1 migration conventions
+globs: migrations/**/*
+alwaysApply: false
+---
+# D1 migrations
+
+- Sequential `NNNN_name.sql` under `migrations/`; Worker A Wrangler points `migrations_dir` here.
+- Core and billing bind the **same** `itineraryedge-global` database.
+- Prefer additive, nullable columns for Stripe/ledger fields used by Worker B.
+- Never commit real production `database_id` secrets; placeholders stay placeholders unless maintainers direct otherwise.
+- Apply local: see [migrations/README.md](../../migrations/README.md). Skill: `.cursor/skills/d1-migrations/SKILL.md`.
