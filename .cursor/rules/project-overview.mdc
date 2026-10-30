@@ -1,0 +1,29 @@
+---
+description: ItineraryEdge monorepo layout and stack snapshot
+alwaysApply: true
+---
+# Project overview
+
+Open-core **ItineraryEdge**: edge visa-style travel itinerary API + web UI on Cloudflare.
+
+## Layout
+
+| Path | Role |
+| --- | --- |
+| `apps/web` | Next.js App Router (Cloudflare Pages) |
+| `workers/core` | Worker A — public HTTP API |
+| `packages/shared` | Shared types, validators, display geo pricing |
+| `migrations/` | D1 schema for `itineraryedge-global` |
+| `docs/` | Architecture, self-host, security, AI playbook |
+
+## Stack
+
+- **pnpm** workspace (`pnpm-workspace.yaml`); Node 20+
+- Cloudflare **Pages** + **Workers** + **D1**
+- Private billing sidecar: [`itineraryedge-billing`](https://github.com/lazehang/itineraryedge-billing) (Worker B — not in this repo)
+
+## Status
+
+**Work in progress — not production-ready.** Do not claim otherwise in docs or UI.
+
+Start at [README.md](../../README.md) and [docs/README.md](../../docs/README.md). Agent entry: [AGENTS.md](../../AGENTS.md), [docs/ai-playbook.md](../../docs/ai-playbook.md).

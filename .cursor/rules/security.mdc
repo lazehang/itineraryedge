@@ -1,0 +1,11 @@
+---
+description: Secrets, CORS, mock unlock, and payment boundary
+alwaysApply: true
+---
+# Security
+
+- **Staging/production CORS:** set `APP_ORIGIN` on Worker A (and Worker B). Optional `ALLOWED_ORIGINS` for extras. See [docs/security.md](../../docs/security.md).
+- **Mock unlock:** `ALLOW_MOCK_UNLOCK` and `NEXT_PUBLIC_ALLOW_MOCK_UNLOCK` are **local/staging only**. Never set on production. Checklist: [docs/staging-checklist.md](../../docs/staging-checklist.md).
+- **No secrets in git.** Stripe secret keys, webhook secrets, and Stripe SDK server code belong **only** in private [`itineraryedge-billing`](https://github.com/lazehang/itineraryedge-billing).
+- **Email-as-identity** (`email` query/body) is an MVP residual — treat as capability-style access, not auth.
+- Do not claim production-ready or invent audit-complete status; follow [docs/security.md](../../docs/security.md).

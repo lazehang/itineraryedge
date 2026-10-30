@@ -50,9 +50,12 @@ Optional Wrangler **vars** / **secrets** on the core worker:
 
 ## 4. Deploy web (Pages)
 
-Deploy from `apps/web` using the Cloudflare dashboard **Pages** project with the Next.js preset, or your chosen OpenNext/adapter flow documented in `apps/web/wrangler.jsonc`.
+Pick **one** path for `apps/web` (Next.js App Router):
 
-Set **Pages environment variables** (public `NEXT_PUBLIC_*` only):
+1. **Cloudflare dashboard (simplest for self-hosters):** create a Pages project → Framework preset **Next.js** → connect this GitHub repo → set root directory to `apps/web` (or monorepo build settings so `pnpm` installs from the repo root). Build/output follow the Next.js preset Cloudflare documents for your Next major.
+2. **Wrangler + OpenNext (later / advanced):** `apps/web/wrangler.jsonc` notes adopting `@opennextjs/cloudflare` in a later iteration — use this when you intentionally leave the dashboard preset. Do not invent a custom deploy script that is not in the repo yet.
+
+Until OpenNext is wired in-tree, prefer the **dashboard Next.js preset**. Either way, set **Pages environment variables** (public `NEXT_PUBLIC_*` only — never Stripe secrets):
 
 | Variable | Purpose |
 | --- | --- |

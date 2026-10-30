@@ -4,12 +4,13 @@ import { Disclaimer } from "@/components/Disclaimer";
 export default function HomePage() {
   return (
     <main>
-      <p className="badge">Iteration 2</p>
+      <p className="badge">Work in progress</p>
       <h1>Embassy-style travel schedules, without the visa confusion</h1>
       <p className="lede muted">
-        ItineraryEdge helps you draft a clear single-destination travel itinerary packet on the
-        edge — ready for your records and future PDF export. One traveler, email-based access, no
-        payment flow in this iteration.
+        ItineraryEdge helps you draft a single-destination travel itinerary on the edge, optionally
+        generate flight/hotel/sightseeing JSON, and download a travel-packet PDF. Unlock a polished
+        PDF with staging demo unlock or paid checkout via the private billing worker (Stripe test).
+        APIs and UI may change — not production-ready.
       </p>
 
       <div className="cta-row">
@@ -22,10 +23,11 @@ export default function HomePage() {
       </div>
 
       <section className="card stack" style={{ marginTop: "2rem" }}>
-        <h2 className="section-title">What you get in Iteration 2</h2>
+        <h2 className="section-title">What you get in this MVP</h2>
         <ul className="feature-list">
           <li>Save a draft tied to your email (no OTP in this MVP).</li>
-          <li>Destination country mapped into your stay segment automatically.</li>
+          <li>Optional AI generation (BYOK or mock driver) for flights, hotels, and sightseeing.</li>
+          <li>Standard travel-packet PDF; polished PDF after unlock (mock locally/staging, or paid via billing).</li>
           <li>List and reopen drafts from any device using the same email.</li>
         </ul>
       </section>

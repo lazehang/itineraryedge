@@ -1,0 +1,14 @@
+---
+description: Worker A vs Pages vs private billing Worker B
+alwaysApply: true
+---
+# Workers vs web
+
+| Piece | Where | Role |
+| --- | --- | --- |
+| Worker A | `workers/core` | Public API: itineraries, generate, PDF, gated mock unlock |
+| Pages | `apps/web` | UI; talks to core (and optionally billing) over HTTPS |
+| D1 | shared | Same `itineraryedge-global` binding for core and billing |
+| Worker B | private `itineraryedge-billing` | Stripe Checkout + webhooks; sets `is_premium_unlocked` |
+
+Checkout/unlock shapes live in docs ([checkout-contract.md](../../docs/checkout-contract.md), [byok-and-unlock.md](../../docs/byok-and-unlock.md)) — not in secrets. Never add Stripe secrets or webhook handlers to this public repo.
