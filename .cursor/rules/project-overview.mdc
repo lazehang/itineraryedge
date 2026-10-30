@@ -1,10 +1,10 @@
 ---
-description: ItineraryEdge monorepo layout and stack snapshot
+description: ItineraryEdge monorepo layout, stack, and agent entrypoints
 alwaysApply: true
 ---
 # Project overview
 
-Open-core **ItineraryEdge**: edge visa-style travel itinerary API + web UI on Cloudflare.
+Open-core **ItineraryEdge**: edge visa-style travel itinerary API + web UI on Cloudflare. **WIP — not production-ready.**
 
 ## Layout
 
@@ -15,6 +15,7 @@ Open-core **ItineraryEdge**: edge visa-style travel itinerary API + web UI on Cl
 | `packages/shared` | Shared types, validators, display geo pricing |
 | `migrations/` | D1 schema for `itineraryedge-global` |
 | `docs/` | Architecture, self-host, security, AI playbook |
+| `.cursor/skills/` | Project skills for local agent-driven work |
 
 ## Stack
 
@@ -22,8 +23,8 @@ Open-core **ItineraryEdge**: edge visa-style travel itinerary API + web UI on Cl
 - Cloudflare **Pages** + **Workers** + **D1**
 - Private billing sidecar: [`itineraryedge-billing`](https://github.com/lazehang/itineraryedge-billing) (Worker B — not in this repo)
 
-## Status
+## Agent entry
 
-**Work in progress — not production-ready.** Do not claim otherwise in docs or UI.
-
-Start at [README.md](../../README.md) and [docs/README.md](../../docs/README.md). Agent entry: [AGENTS.md](../../AGENTS.md), [docs/ai-playbook.md](../../docs/ai-playbook.md).
+1. [AGENTS.md](../../AGENTS.md)
+2. [docs/ai-playbook.md](../../docs/ai-playbook.md)
+3. Matching skill under `.cursor/skills/` (start with `drive-local` for end-to-end local prompts)

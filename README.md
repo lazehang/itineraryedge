@@ -6,7 +6,7 @@ Edge-hosted travel itinerary API and web UI on **Cloudflare** (Pages, Workers, D
 
 > **Disclaimer:** PDFs and schedules produced by ItineraryEdge are **supporting travel packets only**. They are **not** visas, consular decisions, or guarantees of admission.
 
-**Documentation:** [docs/README.md](docs/README.md) — architecture, self-host, BYOK/unlock, core API, checkout contract, contributing, security. Agent / AI workflow: [docs/ai-playbook.md](docs/ai-playbook.md). Staging recipe: [docs/staging-checklist.md](docs/staging-checklist.md).
+**Documentation:** [docs/README.md](docs/README.md) — architecture, self-host, BYOK/unlock, core API, checkout contract, contributing, security. Agent entry: [AGENTS.md](AGENTS.md). Local AI workflow + skills: [docs/ai-playbook.md](docs/ai-playbook.md), [`.cursor/skills/`](.cursor/skills/). Staging recipe: [docs/staging-checklist.md](docs/staging-checklist.md).
 
 ## Quickstart
 

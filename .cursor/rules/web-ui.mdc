@@ -1,0 +1,13 @@
+---
+description: Conventions when editing the Next.js Pages app
+globs: apps/web/**/*
+alwaysApply: false
+---
+# Web UI (`apps/web`)
+
+- Next.js App Router under `app/`; shared UI in `components/`, API helpers in `lib/`.
+- Talks to Worker A via `NEXT_PUBLIC_CORE_WORKER_URL`; optional billing via `NEXT_PUBLIC_BILLING_WORKER_URL`.
+- `NEXT_PUBLIC_ALLOW_MOCK_UNLOCK` is staging/local demo only — never treat as production auth.
+- Prefer existing page patterns under `app/itineraries/` over new layout systems.
+- No Stripe secret usage in the browser or Pages functions in this repo.
+- Skill: `.cursor/skills/web-ui/SKILL.md`.

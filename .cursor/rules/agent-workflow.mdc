@@ -1,0 +1,25 @@
+---
+description: Local prompt routing — plan, implement, review, QA without inventing scope
+alwaysApply: true
+---
+# Agent workflow
+
+## Local-first
+
+Drive work from a **local** Cursor Agent in this checkout. Follow [docs/ai-playbook.md](../../docs/ai-playbook.md). Use `.cursor/skills/` instead of improvising process.
+
+## Route the prompt
+
+1. **Classify** — docs / bugfix / feature / review / QA / infra.
+2. **Load skill** — `drive-local` for end-to-end; domain skills when editing those trees.
+3. **Plan when needed** — multi-file features, API contract changes, unlock/billing-adjacent work → `plan-slice` before coding.
+4. **Implement** — `implement-slice`; keep diffs focused.
+5. **Review + QA** — `review-changes`; behavior changes also `qa-acceptance`.
+6. **Quality gates** — `pnpm lint`, `pnpm typecheck`, `pnpm test` before claiming done.
+
+## Do not
+
+- Invent product decisions, pricing, or auth models — escalate.
+- Add Stripe secrets, webhook handlers, or Stripe SDK to this public repo.
+- Claim production-ready or audit-complete status.
+- Commit or open PRs unless the human asked.

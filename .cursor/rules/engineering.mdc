@@ -5,7 +5,9 @@ alwaysApply: true
 # Engineering
 
 - Agent commits include: `Co-authored-by: lazehang <lazehang@gmail.com>`
-- Run existing quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm test` (package scripts; often `node --test` under packages/workers).
-- Do **not** invent product decisions — escalate to Product Owner / maintainers.
+- Run existing quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm test` (package scripts; often `node --test` under workers).
+- Prefer existing patterns in the touched package; avoid drive-by refactors.
+- Do **not** invent product decisions — escalate to maintainers.
 - Do **not** claim production-ready.
 - License is **MIT** — root `LICENSE` must exist and stay honest with `package.json`.
+- Only commit / push / open PRs when the human explicitly asks.
