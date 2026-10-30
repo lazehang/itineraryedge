@@ -1,0 +1,11 @@
+---
+description: Commits, tests, product decisions, honesty
+alwaysApply: true
+---
+# Engineering
+
+- Agent commits include: `Co-authored-by: lazehang <lazehang@gmail.com>`
+- Run existing quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm test` (package scripts; often `node --test` under packages/workers).
+- Do **not** invent product decisions — escalate to Product Owner / maintainers.
+- Do **not** claim production-ready.
+- License is **MIT** — root `LICENSE` must exist and stay honest with `package.json`.
