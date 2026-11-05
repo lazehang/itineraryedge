@@ -1,28 +1,62 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Disclaimer } from "@/components/Disclaimer";
-import { CreateItineraryForm } from "./CreateItineraryForm";
+import { PlanItineraryForm } from "./PlanItineraryForm";
 
-export default function NewItineraryPage() {
+export const metadata: Metadata = {
+  title: "New itinerary",
+};
+
+type Props = {
+  searchParams: Promise<{ manual?: string }>;
+};
+
+export default async function NewItineraryPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const manual = params.manual === "1" || params.manual === "true";
+
+  if (manual) {
+    const { CreateItineraryForm } = await import("./CreateItineraryForm");
+    return (
+      <main id="main" className="main--narrow">
+        <p className="eyebrow">New itinerary</p>
+        <h1>Manual trip details</h1>
+        <p className="lede muted">
+          Enter structured fields for a draft only. You can generate the schedule on the detail
+          page afterward.
+        </p>
+
+        <section className="sheet stack" style={{ marginTop: "var(--space-l)" }}>
+          <CreateItineraryForm />
+        </section>
+
+        <p className="page-links">
+          <Link href="/itineraries/new">Back to prompt planning</Link>
+          {" · "}
+          <Link href="/">Home</Link>
+        </p>
+      </main>
+    );
+  }
+
   return (
-    <main>
-      <p className="badge">Create draft</p>
-      <h1>New travel itinerary</h1>
+    <main id="main" className="main--narrow">
+      <p className="eyebrow">New itinerary</p>
+      <h1>Describe your trip</h1>
       <p className="lede muted">
-        Single-traveler MVP — your email identifies your profile. No verification step in this
-        iteration.
+        Tell us where you&apos;re going in plain language. We&apos;ll draft an illustrative schedule
+        (flights, hotels, days) you can review and download as supporting paperwork — not a visa or
+        real ticket.
       </p>
 
-      <section className="card stack" style={{ marginTop: "1.5rem" }}>
-        <CreateItineraryForm />
+      <section className="sheet stack" style={{ marginTop: "var(--space-l)" }}>
+        <PlanItineraryForm />
       </section>
 
-      <section className="card stack" style={{ marginTop: "1rem" }}>
-        <h2 className="section-title">Disclaimer</h2>
-        <Disclaimer />
-      </section>
-
-      <p className="muted" style={{ marginTop: "1.5rem" }}>
-        <Link href="/">Back to home</Link>
+      <p className="page-links">
+        Prefer the structured form?{" "}
+        <Link href="/itineraries/new?manual=1">Enter details manually</Link>
+        {" · "}
+        <Link href="/">Home</Link>
       </p>
     </main>
   );

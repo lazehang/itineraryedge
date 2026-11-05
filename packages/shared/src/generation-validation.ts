@@ -8,9 +8,19 @@ import type {
 } from "./generation-types";
 
 const ISO_ALPHA2 = /^[A-Z]{2}$/;
+const IATA = /^[A-Z]{3}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const CATEGORIES = new Set(["culture", "food", "nature", "transit", "rest"]);
+
+function readOptionalString(obj: Record<string, unknown>, key: string): string | undefined {
+  const value = obj[key];
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -271,6 +281,22 @@ export function validateFlightSchedule(raw: unknown): {
       if (arriveTime && !TIME.test(arriveTime)) {
         errors.push(`${prefix}.arriveTime must be HH:MM.`);
       }
+
+      const originAirport = readOptionalString(segment, "originAirport");
+      if (originAirport && !IATA.test(originAirport.toUpperCase())) {
+        errors.push(`${prefix}.originAirport must be IATA (3 letters) when present.`);
+      }
+      const destinationAirport = readOptionalString(segment, "destinationAirport");
+      if (destinationAirport && !IATA.test(destinationAirport.toUpperCase())) {
+        errors.push(`${prefix}.destinationAirport must be IATA (3 letters) when present.`);
+      }
+      // Optional ticket fields: bookingRef, cabinClass, seat, terminal — free-form strings if present.
+      for (const optionalKey of ["bookingRef", "cabinClass", "seat", "terminal"] as const) {
+        const optional = segment[optionalKey];
+        if (optional !== undefined && (typeof optional !== "string" || !optional.trim())) {
+          errors.push(`${prefix}.${optionalKey} must be a non-empty string when present.`);
+        }
+      }
     });
   }
 
@@ -278,9 +304,40 @@ export function validateFlightSchedule(raw: unknown): {
     return { ok: false, errors };
   }
 
+  const segments = (raw.segments as Record<string, unknown>[]).map((segment) => {
+    const originAirport = readOptionalString(segment, "originAirport");
+    const destinationAirport = readOptionalString(segment, "destinationAirport");
+    return {
+      direction: (segment.direction as string).trim() as "outbound" | "return",
+      carrier: (segment.carrier as string).trim(),
+      flightNumber: (segment.flightNumber as string).trim(),
+      origin: (segment.origin as string).trim(),
+      destination: (segment.destination as string).trim(),
+      departDate: (segment.departDate as string).trim(),
+      departTime: (segment.departTime as string).trim(),
+      arriveDate: (segment.arriveDate as string).trim(),
+      arriveTime: (segment.arriveTime as string).trim(),
+      ...(originAirport ? { originAirport: originAirport.toUpperCase() } : {}),
+      ...(destinationAirport ? { destinationAirport: destinationAirport.toUpperCase() } : {}),
+      ...(readOptionalString(segment, "bookingRef")
+        ? { bookingRef: readOptionalString(segment, "bookingRef")!.toUpperCase() }
+        : {}),
+      ...(readOptionalString(segment, "cabinClass")
+        ? { cabinClass: readOptionalString(segment, "cabinClass") }
+        : {}),
+      ...(readOptionalString(segment, "seat") ? { seat: readOptionalString(segment, "seat") } : {}),
+      ...(readOptionalString(segment, "terminal")
+        ? { terminal: readOptionalString(segment, "terminal") }
+        : {}),
+    };
+  });
+
   return {
     ok: true,
-    value: raw as unknown as GenerationFlightSchedule,
+    value: {
+      schemaVersion: GENERATION_SCHEMA_VERSION,
+      segments,
+    },
   };
 }
 

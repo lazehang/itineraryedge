@@ -73,6 +73,86 @@ export async function createItinerary(
   return { ok: true, itinerary: body.itinerary };
 }
 
+export type PlanItineraryInput = {
+  email: string;
+  prompt: string;
+  travelerName?: string;
+  passportNationality?: string;
+  destinationCountry?: string;
+  startDate?: string;
+  endDate?: string;
+  title?: string;
+};
+
+export type PlanItineraryResult =
+  | { ok: true; itinerary: ItineraryDetail; driver: string }
+  | {
+      ok: false;
+      errors?: Record<string, string>;
+      code?: GenerateErrorCode;
+      message: string;
+      details?: string[];
+      itinerary?: ItineraryDetail;
+    };
+
+export async function planItinerary(
+  input: PlanItineraryInput,
+  byokKey?: string,
+): Promise<PlanItineraryResult> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  const key = byokKey?.trim();
+  if (key) {
+    headers["X-BYOK-Key"] = key;
+  }
+
+  const response = await fetch(`${coreBaseUrl}/api/itineraries/plan`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(input),
+    cache: "no-store",
+  });
+
+  const body = await parseJsonResponse<{
+    itinerary?: ItineraryDetail;
+    generation?: { driver?: string };
+    errors?: Record<string, string>;
+    code?: GenerateErrorCode;
+    error?: string;
+    details?: string[];
+  }>(response);
+
+  if (response.status === 422 && body.errors && !body.itinerary) {
+    return {
+      ok: false,
+      errors: body.errors,
+      message: body.error ?? "Could not resolve trip fields from your prompt.",
+    };
+  }
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      code: body.code,
+      message: body.error ?? "Planning failed.",
+      details: body.details,
+      errors: body.errors,
+      itinerary: body.itinerary,
+    };
+  }
+
+  if (!body.itinerary) {
+    return { ok: false, message: "Plan succeeded but no itinerary was returned." };
+  }
+
+  return {
+    ok: true,
+    itinerary: body.itinerary,
+    driver: body.generation?.driver ?? "unknown",
+  };
+}
+
 export async function listItineraries(email: string): Promise<ItinerarySummary[]> {
   const url = new URL(`${coreBaseUrl}/api/itineraries`);
   url.searchParams.set("email", email);

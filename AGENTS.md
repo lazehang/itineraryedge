@@ -53,6 +53,8 @@ Health: `GET http://127.0.0.1:8787/health`
 | [`qa-acceptance`](.cursor/skills/qa-acceptance/SKILL.md) | Acceptance against local / preview URLs |
 | [`core-worker`](.cursor/skills/core-worker/SKILL.md) | Editing `workers/core` |
 | [`web-ui`](.cursor/skills/web-ui/SKILL.md) | Editing `apps/web` |
+| [`taste-skill`](.cursor/skills/taste-skill/SKILL.md) | Design / redesign / anti-slop art direction + browser inspect (upstream: design-taste-frontend) |
+| [`awesome-design-md`](.cursor/skills/awesome-design-md/SKILL.md) | Pick a brand `DESIGN.md` reference for visual systems |
 | [`d1-migrations`](.cursor/skills/d1-migrations/SKILL.md) | Changing D1 schema / migrations |
 | [`shared-package`](.cursor/skills/shared-package/SKILL.md) | Editing `packages/shared` |
 

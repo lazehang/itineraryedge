@@ -23,7 +23,7 @@ type Props = {
   checkoutReturn: "success" | "cancel" | null;
 };
 
-type DownloadTarget = "standard" | "polished";
+type DownloadTarget = "standard" | "polished" | "ticket";
 type DownloadState = "idle" | "loading";
 type UnlockState = "idle" | "loading" | "success" | "error";
 type CheckoutState = "idle" | "loading" | "error";
@@ -65,7 +65,11 @@ export function TravelPacketCard({
 
   const pdfUrlFor = useCallback(
     (variant: DownloadTarget) => {
-      const url = new URL(`${getCoreApiBaseUrl()}/api/itineraries/${itineraryId}/pdf`);
+      const path =
+        variant === "ticket"
+          ? `${getCoreApiBaseUrl()}/api/itineraries/${itineraryId}/pdf/ticket`
+          : `${getCoreApiBaseUrl()}/api/itineraries/${itineraryId}/pdf`;
+      const url = new URL(path);
       url.searchParams.set("email", email);
       if (variant === "polished") {
         url.searchParams.set("variant", "polished");
@@ -76,16 +80,21 @@ export function TravelPacketCard({
   );
 
   const filenameFor = useCallback(
-    (variant: DownloadTarget) =>
-      variant === "polished"
-        ? `itineraryedge-${itineraryId}-polished.pdf`
-        : `itineraryedge-${itineraryId}.pdf`,
+    (variant: DownloadTarget) => {
+      if (variant === "polished") {
+        return `itineraryedge-${itineraryId}-polished.pdf`;
+      }
+      if (variant === "ticket") {
+        return `itineraryedge-${itineraryId}-flight-coupon.pdf`;
+      }
+      return `itineraryedge-${itineraryId}.pdf`;
+    },
     [itineraryId],
   );
 
   const onDownload = useCallback(
     async (variant: DownloadTarget) => {
-      if (variant === "standard" && !hasGeneration) {
+      if ((variant === "standard" || variant === "ticket") && !hasGeneration) {
         return;
       }
       if (variant === "polished" && (!hasGeneration || !unlocked)) {
@@ -249,7 +258,7 @@ export function TravelPacketCard({
     unlocked && unlockKind ? premiumUnlockBadgeLabel(unlockKind) : null;
 
   return (
-    <section className="card stack" style={{ marginTop: "1rem" }}>
+    <section className="sheet stack" style={{ marginTop: "var(--space-m)" }}>
       <div className="card-heading">
         <h2 className="section-title">Travel packet</h2>
         <div className="packet-badges">
@@ -300,6 +309,30 @@ export function TravelPacketCard({
           {downloadState === "loading" && activeDownload === "standard"
             ? "Preparing…"
             : "Download standard PDF"}
+        </button>
+      </div>
+
+      <div className="packet-row">
+        <div className="packet-row__main">
+          <strong>Flight coupon (sample)</strong>
+          {!hasGeneration ? (
+            <p className="muted text-sm">Generate the schedule first.</p>
+          ) : (
+            <p className="muted text-sm">
+              Free illustrative coupon — not a valid ticket, boarding pass, or booking.
+            </p>
+          )}
+        </div>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => void onDownload("ticket")}
+          disabled={!standardEnabled || downloadState === "loading"}
+          aria-busy={downloadState === "loading" && activeDownload === "ticket"}
+        >
+          {downloadState === "loading" && activeDownload === "ticket"
+            ? "Preparing…"
+            : "Download flight coupon (sample)"}
         </button>
       </div>
 
@@ -379,11 +412,13 @@ export function TravelPacketCard({
         </div>
       ) : null}
 
-      {unlockState === "success" && unlockKind === "demo" ? (
-        <p className="text-sm" role="status">
-          {hasGeneration
-            ? "Demo unlocked for this itinerary — you can download the polished PDF above."
-            : "Demo unlocked — generate the schedule first, then download the polished PDF."}
+      {unlocked ? (
+        <p className="status-line" role="status">
+          {unlockState === "success" && unlockKind === "demo"
+            ? hasGeneration
+              ? "Polished PDF unlocked for this itinerary."
+              : "Unlocked — generate the schedule, then download the polished PDF."
+            : "Polished PDF unlocked."}
         </p>
       ) : null}
     </section>

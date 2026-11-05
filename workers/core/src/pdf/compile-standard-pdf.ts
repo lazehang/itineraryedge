@@ -8,9 +8,12 @@ import {
 import { PDFDocument } from "pdf-lib";
 import { PDF_PACKET_DISCLAIMER } from "./disclaimer.js";
 import {
+  CONTENT_WIDTH,
   embedPdfFonts,
   estimateGenerationJsonBytes,
-  FONT_SIZE,
+  INK,
+  MARGIN_X,
+  MUTED,
   PAGE_HEIGHT,
   PAGE_WIDTH,
   paintStandardPageChrome,
@@ -18,8 +21,13 @@ import {
   TOP_CONTENT_Y,
   type WriterContext,
   writeBlank,
+  writeEntryBlock,
   writeHeading,
+  writeInfoCard,
+  writeKeyValueGrid,
   writeLines,
+  writeTimelineDay,
+  sanitizeForPdf,
 } from "./pdf-layout.js";
 
 export const MAX_GENERATION_JSON_BYTES = 512 * 1024;
@@ -70,62 +78,91 @@ export async function compileStandardPdf(
     fontBold,
     page: pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]),
     y: TOP_CONTENT_Y,
+    pageNumber: 0,
   };
 
   paintStandardPageChrome(ctx);
 
-  writeLines(ctx, [input.title], TITLE_SIZE, true);
-  writeBlank(ctx);
-  writeLines(ctx, [
-    `Itinerary ID: ${input.itineraryId}`,
-    `Destination: ${input.destinationCountry ?? "—"}`,
-    `Traveler: ${input.payload?.traveler.displayName ?? input.profileDisplayName ?? "—"}`,
-    `Passport nationality: ${input.payload?.traveler.passportCountry ?? "—"}`,
-    `Profile email: ${input.profileEmail ?? "—"}`,
+  const title = sanitizeForPdf(input.title);
+  ctx.page.drawText(title, {
+    x: MARGIN_X,
+    y: ctx.y,
+    size: TITLE_SIZE,
+    font: ctx.fontBold,
+    color: INK,
+    maxWidth: CONTENT_WIDTH,
+  });
+  ctx.y -= 28;
+
+  ctx.page.drawText(sanitizeForPdf("Prepared as supporting travel paperwork"), {
+    x: MARGIN_X,
+    y: ctx.y,
+    size: 9,
+    font: ctx.font,
+    color: MUTED,
+  });
+  ctx.y -= 18;
+
+  writeKeyValueGrid(ctx, [
+    ["Traveler", input.payload?.traveler.displayName ?? input.profileDisplayName ?? "—"],
+    ["Passport nationality", input.payload?.traveler.passportCountry ?? "—"],
+    ["Destination", input.destinationCountry ?? "—"],
+    ["Reference ID", input.itineraryId],
+    ["Contact email", input.profileEmail ?? "—"],
+    ["Document type", "Standard travel schedule packet"],
   ]);
 
   const stay = input.payload?.segments?.find((segment) => segment.kind === "stay");
   if (stay) {
-    writeHeading(ctx, "Trip stay (from draft payload)");
-    writeLines(ctx, [
+    writeHeading(ctx, "Trip overview");
+    writeInfoCard(ctx, [
       `${stay.label} · ${stay.location ?? input.destinationCountry ?? "—"}`,
-      `Dates: ${stay.startDate} → ${stay.endDate}`,
+      `Travel dates: ${stay.startDate} to ${stay.endDate}`,
     ]);
   }
 
-  writeHeading(ctx, "Flights");
+  writeHeading(ctx, "Flight schedule");
   for (const segment of input.flightSchedule.segments) {
-    writeLines(ctx, [
-      `${segment.direction.toUpperCase()} · ${segment.carrier} ${segment.flightNumber}`,
-      `${segment.origin} → ${segment.destination}`,
-      `Depart ${segment.departDate} ${segment.departTime} · Arrive ${segment.arriveDate} ${segment.arriveTime}`,
-    ]);
-    writeBlank(ctx);
+    writeEntryBlock(
+      ctx,
+      `${segment.direction.toUpperCase()}  ·  ${segment.carrier} ${segment.flightNumber}`,
+      [
+        `Route: ${segment.origin} -> ${segment.destination}`,
+        `Depart: ${segment.departDate} ${segment.departTime}`,
+        `Arrive: ${segment.arriveDate} ${segment.arriveTime}`,
+      ],
+    );
   }
 
-  writeHeading(ctx, "Hotels");
+  writeHeading(ctx, "Hotel accommodation");
   for (const hotel of input.hotelInventory.hotels) {
-    writeLines(ctx, [
-      `${hotel.name} (${hotel.starRating}★) · ${hotel.city}`,
-      `Check-in ${hotel.checkIn} · Check-out ${hotel.checkOut}`,
-      `Indicative nightly rate: USD ${hotel.nightlyRateUsd}`,
-    ]);
-    writeBlank(ctx);
+    writeEntryBlock(
+      ctx,
+      `${hotel.name}  ·  ${hotel.city}`,
+      [
+        `Category: ${hotel.starRating}*`,
+        `Check-in ${hotel.checkIn}  |  Check-out ${hotel.checkOut}`,
+        `Indicative nightly rate: USD ${hotel.nightlyRateUsd}`,
+      ],
+    );
   }
 
-  writeHeading(ctx, "Sightseeing timeline");
+  writeHeading(ctx, "Daily plan");
   for (const day of input.sightseeingTimeline.days) {
-    writeLines(ctx, [`${day.date} — ${day.theme}`], FONT_SIZE, true);
-    for (const item of day.items) {
-      writeLines(ctx, [
-        `  ${item.startTime}–${item.endTime} · ${item.title} @ ${item.place} (${item.category})`,
-      ]);
-    }
-    writeBlank(ctx);
+    writeTimelineDay(
+      ctx,
+      `${day.date}  —  ${day.theme}`,
+      day.items.map(
+        (item) =>
+          `${item.startTime}-${item.endTime}  ${item.title}  @ ${item.place} (${item.category})`,
+      ),
+    );
   }
 
-  writeHeading(ctx, "Legal notice");
-  writeLines(ctx, [ITINERARY_DISCLAIMER, PDF_PACKET_DISCLAIMER]);
+  writeHeading(ctx, "Important notice");
+  writeLines(ctx, [ITINERARY_DISCLAIMER], 9, false, paintStandardPageChrome, { color: MUTED });
+  writeBlank(ctx);
+  writeLines(ctx, [PDF_PACKET_DISCLAIMER], 9, false, paintStandardPageChrome, { color: MUTED });
 
   const bytes = await pdfDoc.save();
   return { ok: true, bytes };

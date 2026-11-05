@@ -28,14 +28,14 @@ Prompt → drive-local
                                         → implement-slice → review-changes → qa-acceptance
 ```
 
-Load domain skills when touching those trees: `core-worker`, `web-ui`, `d1-migrations`, `shared-package`, `local-dev`.
+Load domain skills when touching those trees: `core-worker`, `web-ui`, `d1-migrations`, `shared-package`, `local-dev`. For redesign / anti-slop UI: also `taste-skill` + `awesome-design-md`.
 
 ### Roles (same person or subagents)
 
 | Role | Owns | Skill |
 | --- | --- | --- |
 | **Planner** | Scoped plan, out-of-scope list, test notes | `plan-slice` |
-| **Designer** | UI/UX only when the slice changes user-facing UI | (follow `web-ui` + existing UI patterns) |
+| **Designer** | UI/UX when the slice changes user-facing UI | `web-ui` + `taste-skill` + `awesome-design-md` (pick a `DESIGN.md`) |
 | **Builder** | Implements the plan; quality gates green | `implement-slice` |
 | **Reviewer** | Real blockers only (security, correctness, contract break) | `review-changes` |
 | **QA** | Acceptance against local / preview URL | `qa-acceptance` |

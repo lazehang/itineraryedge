@@ -24,6 +24,7 @@ description: >-
 - BYOK keys: sessionStorage only if that pattern already exists — never persist keys in D1 from the browser.
 - `NEXT_PUBLIC_ALLOW_MOCK_UNLOCK` only controls demo UI; production must leave it unset.
 - Reuse existing itinerary page structure; avoid new design systems unless the human asks.
+- **Design / redesign:** load [`taste-skill`](../taste-skill/SKILL.md) and [`awesome-design-md`](../awesome-design-md/SKILL.md). Prefer a vendored `DESIGN.md` reference + taste art direction over improvising another generic SaaS look.
 - No Stripe secret keys or server-side Stripe SDK in this package.
 
 ## Verify

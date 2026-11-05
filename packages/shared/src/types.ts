@@ -5,6 +5,12 @@ export const ITINERARY_SCHEMA_VERSION = "1.0" as const;
 export const ITINERARY_DISCLAIMER =
   "Supporting travel schedule packet only — not a visa, approval, or guarantee of entry." as const;
 
+/** Dummy flight coupon / e-ticket PDF — never a valid airline document. */
+export const FLIGHT_TICKET_DISCLAIMER =
+  "Illustrative flight coupon — not a valid ticket, boarding pass, or booking." as const;
+
+export const FLIGHT_TICKET_BANNER = "NOT A VALID TICKET — SAMPLE ONLY" as const;
+
 export type SegmentKind = "flight" | "stay" | "transfer" | "activity";
 
 export interface ItinerarySegment {

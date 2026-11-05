@@ -1,4 +1,6 @@
 export {
+  FLIGHT_TICKET_BANNER,
+  FLIGHT_TICKET_DISCLAIMER,
   ITINERARY_DISCLAIMER,
   ITINERARY_SCHEMA_VERSION,
   type ItinerarySegment,
@@ -17,6 +19,17 @@ export {
   type CreateItineraryInput,
   type FieldErrors,
 } from "./validation";
+
+export type {
+  ExtractedPlanFields,
+  PlanFieldErrors,
+  PlanItineraryInput,
+} from "./plan-types";
+
+export {
+  mergePlanHints,
+  validatePlanItineraryInput,
+} from "./plan-validation";
 
 export {
   GENERATION_SCHEMA_VERSION,

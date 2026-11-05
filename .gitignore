@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+.pnpm-store/
+.tools/
 
 # Build outputs
 .next/
@@ -13,6 +15,9 @@ worker-configuration.d.ts
 .env
 .env.*
 !.env.example
+.dev.vars
+**/.dev.vars
+
 
 # Logs & debug
 *.log
@@ -29,3 +34,7 @@ pnpm-debug.log*
 
 # Test / coverage
 coverage/
+
+# Taste Skill working files (art-direction deals / inspect output)
+.taste-skill/
+.tmp-skills/

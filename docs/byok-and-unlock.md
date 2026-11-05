@@ -2,7 +2,11 @@
 
 ## BYOK (AI generation)
 
-The web UI can store one AI key in **sessionStorage** only (`itineraryedge:byok:ai`). Generate requests send it as the `X-BYOK-Key` header. Keys are **not** written to D1 or localStorage.
+The web UI can store one AI key in **sessionStorage** only (`itineraryedge:byok:ai`). Generate and **plan** (`POST /api/itineraries/plan`) requests send it as the `X-BYOK-Key` header. Keys are **not** written to D1 or localStorage.
+
+Generated flights/hotels/days are **illustrative** (mock or BYOK) — not live bookings.
+
+On **plan**, BYOK may also run a field-extract step. Extracted `passportNationality` / `destinationCountry` are accepted only when grounded in the user prompt text (models that invent codes are stripped before merge).
 
 On the core worker:
 
@@ -18,13 +22,15 @@ Generation errors may include `code: "BYOK"` (401) when a provider key is requir
 | PDF | Requirement |
 | --- | --- |
 | Standard | Generation completed (`GET …/pdf?email=…`) |
-| Polished | Same + `is_premium_unlocked` on the itinerary |
+| Flight coupon | Flight schedule present (`GET …/pdf/ticket?email=…`) — **free**, no unlock |
+| Polished | Same as standard + `is_premium_unlocked` on the itinerary |
 
 If generation has not run, PDF routes return **409** with `code: "NOT_GENERATED"`. If polished is requested while locked, **403** with `code: "LOCKED"`.
 
 Download paths:
 
-- `GET /api/itineraries/:id/pdf?email=…` (optional `variant=polished`)
+- `GET /api/itineraries/:id/pdf?email=…` (optional `variant=polished` or `variant=ticket`)
+- `GET /api/itineraries/:id/pdf/ticket?email=…` (optional `leg=outbound|return|all`)
 - `GET /api/itineraries/:id/pdf/polished?email=…`
 
 ## Unlock modes (open core)

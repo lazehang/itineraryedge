@@ -16,12 +16,21 @@ export type FlightSegment = {
   direction: "outbound" | "return";
   carrier: string;
   flightNumber: string;
+  /** City or airport label for display. */
   origin: string;
   destination: string;
   departDate: string;
   departTime: string;
   arriveDate: string;
   arriveTime: string;
+  /** IATA airport codes when known (illustrative). */
+  originAirport?: string;
+  destinationAirport?: string;
+  /** Fake PNR / booking reference for sample coupons. */
+  bookingRef?: string;
+  cabinClass?: string;
+  seat?: string;
+  terminal?: string;
 };
 
 export type GenerationFlightSchedule = {

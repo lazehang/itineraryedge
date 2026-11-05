@@ -1,7 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { TravelItinerary } from "@itineraryedge/shared";
-import { Disclaimer } from "@/components/Disclaimer";
 import { TravelPacketCard } from "@/components/TravelPacketCard";
 import { GenerateCard } from "@/components/GenerateCard";
 import { isMockUnlockAllowedInWeb } from "@/lib/env";
@@ -10,6 +10,10 @@ import { getItinerary } from "@/lib/core-api";
 type PageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ email?: string; checkout?: string }>;
+};
+
+export const metadata: Metadata = {
+  title: "Itinerary",
 };
 
 export default async function ItineraryDetailPage({ params, searchParams }: PageProps) {
@@ -21,13 +25,13 @@ export default async function ItineraryDetailPage({ params, searchParams }: Page
 
   if (!email) {
     return (
-      <main>
-        <h1>Itinerary detail</h1>
-        <p className="muted">
-          Add your <code>?email=</code> query parameter (same email used when saving) to view this
-          draft.
+      <main id="main" className="main--narrow">
+        <p className="eyebrow">Itinerary</p>
+        <h1>Email required</h1>
+        <p className="lede muted">
+          Open this draft with the same email address you used when saving.
         </p>
-        <p>
+        <p className="page-links">
           <Link href="/itineraries">Look up by email</Link>
         </p>
       </main>
@@ -43,16 +47,19 @@ export default async function ItineraryDetailPage({ params, searchParams }: Page
   const stay = payload?.segments?.find((segment) => segment.kind === "stay");
 
   return (
-    <main>
-      <p className="badge">Draft</p>
+    <main id="main" className="main--narrow">
+      <div className="page-kicker">
+        <p className="eyebrow">Draft itinerary</p>
+        <span className="badge">{itinerary.destinationCountry ?? "—"}</span>
+      </div>
       <h1>{itinerary.title}</h1>
       <p className="lede muted">
-        Destination {itinerary.destinationCountry ?? stay?.location ?? "—"} · traveler{" "}
+        {itinerary.destinationCountry ?? stay?.location ?? "—"} ·{" "}
         {payload?.traveler.displayName ?? "—"}
       </p>
 
-      <section className="card stack" style={{ marginTop: "1.5rem" }}>
-        <h2 className="section-title">Schedule</h2>
+      <section className="sheet stack" style={{ marginTop: "var(--space-l)" }}>
+        <h2 className="section-title">Trip summary</h2>
         {stay ? (
           <dl className="detail-grid">
             <div>
@@ -75,7 +82,7 @@ export default async function ItineraryDetailPage({ params, searchParams }: Page
             </div>
           </dl>
         ) : (
-          <p className="muted">No stay segment in payload.</p>
+          <p className="muted">No stay segment in this draft yet.</p>
         )}
       </section>
 
@@ -95,14 +102,10 @@ export default async function ItineraryDetailPage({ params, searchParams }: Page
         )}
       />
 
-      <section className="card stack" style={{ marginTop: "1rem" }}>
-        <h2 className="section-title">Disclaimer</h2>
-        <Disclaimer />
-      </section>
-
-      <p className="muted" style={{ marginTop: "1.5rem" }}>
-        <Link href={`/itineraries?email=${encodeURIComponent(email)}`}>All itineraries</Link> ·{" "}
-        <Link href="/itineraries/new">Create another</Link>
+      <p className="page-links">
+        <Link href={`/itineraries?email=${encodeURIComponent(email)}`}>All itineraries</Link>
+        {" · "}
+        <Link href="/itineraries/new">New itinerary</Link>
       </p>
     </main>
   );

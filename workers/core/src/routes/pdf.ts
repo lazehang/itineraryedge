@@ -8,9 +8,21 @@ import { pdfResponse } from "../cors.js";
 import type { ItineraryRecord } from "../db/itineraries.js";
 import { getItineraryById } from "../db/itineraries.js";
 import type { Env } from "../index.js";
+import {
+  compileFlightTicketPdf,
+  type FlightTicketLegFilter,
+} from "../pdf/compile-flight-ticket-pdf.js";
 import { compilePolishedPdf } from "../pdf/compile-polished-pdf.js";
 import { compileStandardPdf } from "../pdf/compile-standard-pdf.js";
 import { polishedPdfAccess, resolvePdfVariant, type PdfVariant } from "../pdf/pdf-access.js";
+
+function resolveTicketLeg(param: string | null): FlightTicketLegFilter {
+  const normalized = param?.trim().toLowerCase();
+  if (normalized === "outbound" || normalized === "return") {
+    return normalized;
+  }
+  return "all";
+}
 
 function hasGenerationArtifacts(itinerary: ItineraryRecord): boolean {
   return Boolean(
@@ -91,6 +103,43 @@ export async function handlePdfRoute(
     });
   }
 
+  const flightSchedule = asFlightSchedule(itinerary.flightSchedule);
+
+  if (variant === "ticket") {
+    if (!flightSchedule) {
+      return pdfResponse(request, env, new Uint8Array(), {
+        status: 409,
+        jsonError: {
+          error: "Generation has not been run for this itinerary.",
+          code: "NOT_GENERATED",
+        },
+      });
+    }
+
+    const compiled = await compileFlightTicketPdf({
+      itineraryId: itinerary.id,
+      title: itinerary.title,
+      profileEmail,
+      profileDisplayName,
+      payload: asTravelItinerary(itinerary.payload),
+      flightSchedule,
+      leg: resolveTicketLeg(url.searchParams.get("leg")),
+    });
+
+    if (!compiled.ok) {
+      const status = compiled.code === "NO_SEGMENTS" ? 404 : 413;
+      return pdfResponse(request, env, new Uint8Array(), {
+        status,
+        jsonError: { error: compiled.message, code: compiled.code },
+      });
+    }
+
+    return pdfResponse(request, env, compiled.bytes, {
+      status: 200,
+      filename: `itineraryedge-${itinerary.id}-flight-coupon.pdf`,
+    });
+  }
+
   if (!hasGenerationArtifacts(itinerary)) {
     return pdfResponse(request, env, new Uint8Array(), {
       status: 409,
@@ -98,7 +147,6 @@ export async function handlePdfRoute(
     });
   }
 
-  const flightSchedule = asFlightSchedule(itinerary.flightSchedule);
   const hotelInventory = asHotelInventory(itinerary.hotelInventory);
   const sightseeingTimeline = asSightseeingTimeline(itinerary.sightseeingTimeline);
 

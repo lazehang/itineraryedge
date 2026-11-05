@@ -7,6 +7,51 @@ import {
 import type { ItineraryGenerationContext } from "../context.js";
 import type { GenerationDriver } from "./types.js";
 
+/** Illustrative major airport for ISO country (sample schedules only). */
+const COUNTRY_AIRPORT: Record<string, { iata: string; city: string }> = {
+  US: { iata: "JFK", city: "New York" },
+  GB: { iata: "LHR", city: "London" },
+  JP: { iata: "NRT", city: "Tokyo" },
+  FR: { iata: "CDG", city: "Paris" },
+  DE: { iata: "FRA", city: "Frankfurt" },
+  IT: { iata: "FCO", city: "Rome" },
+  ES: { iata: "MAD", city: "Madrid" },
+  KR: { iata: "ICN", city: "Seoul" },
+  CN: { iata: "PEK", city: "Beijing" },
+  AU: { iata: "SYD", city: "Sydney" },
+  CA: { iata: "YYZ", city: "Toronto" },
+  SG: { iata: "SIN", city: "Singapore" },
+  TH: { iata: "BKK", city: "Bangkok" },
+  AE: { iata: "DXB", city: "Dubai" },
+  IN: { iata: "DEL", city: "New Delhi" },
+  BR: { iata: "GRU", city: "Sao Paulo" },
+  MX: { iata: "MEX", city: "Mexico City" },
+  NL: { iata: "AMS", city: "Amsterdam" },
+  CH: { iata: "ZRH", city: "Zurich" },
+  TW: { iata: "TPE", city: "Taipei" },
+};
+
+function airportForCountry(code: string): { iata: string; city: string } {
+  return COUNTRY_AIRPORT[code.toUpperCase()] ?? {
+    iata: "XXX",
+    city: code.toUpperCase(),
+  };
+}
+
+function mockBookingRef(seed: string): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  let ref = "";
+  for (let i = 0; i < 6; i += 1) {
+    ref += alphabet[(hash + i * 17) % alphabet.length];
+    hash = (hash * 13 + 7) >>> 0;
+  }
+  return ref;
+}
+
 function enumerateDates(startDate: string, endDate: string): string[] {
   const dates: string[] = [];
   const cursor = new Date(`${startDate}T12:00:00Z`);
@@ -113,6 +158,12 @@ export function buildMockGenerationBundle(
     days: buildSightseeingDays(context),
   };
 
+  const originAirport = airportForCountry(context.originCountry);
+  const destAirport = airportForCountry(context.destinationCountry);
+  const bookingRef = mockBookingRef(
+    `${context.travelerName}:${context.startDate}:${context.destinationCountry}`,
+  );
+
   return {
     searchParams: {
       schemaVersion: GENERATION_SCHEMA_VERSION,
@@ -128,10 +179,16 @@ export function buildMockGenerationBundle(
       segments: [
         {
           direction: "outbound",
-          carrier: "OpenSkies",
-          flightNumber: "OS401",
-          origin: context.originCountry,
-          destination: context.destinationCountry,
+          carrier: "Sample Carrier",
+          flightNumber: "SC401",
+          origin: originAirport.city,
+          destination: destAirport.city,
+          originAirport: originAirport.iata,
+          destinationAirport: destAirport.iata,
+          bookingRef,
+          cabinClass: "Economy",
+          seat: "14A",
+          terminal: "1",
           departDate: context.startDate,
           departTime: "08:30",
           arriveDate: context.startDate,
@@ -139,10 +196,16 @@ export function buildMockGenerationBundle(
         },
         {
           direction: "return",
-          carrier: "OpenSkies",
-          flightNumber: "OS402",
-          origin: context.destinationCountry,
-          destination: context.originCountry,
+          carrier: "Sample Carrier",
+          flightNumber: "SC402",
+          origin: destAirport.city,
+          destination: originAirport.city,
+          originAirport: destAirport.iata,
+          destinationAirport: originAirport.iata,
+          bookingRef,
+          cabinClass: "Economy",
+          seat: "22C",
+          terminal: "2",
           departDate: context.endDate,
           departTime: "17:00",
           arriveDate: context.endDate,
@@ -155,7 +218,7 @@ export function buildMockGenerationBundle(
       hotels: [
         {
           name: "Edge Harbor Hotel",
-          city: context.destinationCountry,
+          city: destAirport.city,
           checkIn: context.startDate,
           checkOut: context.endDate,
           starRating: 4,
