@@ -23,6 +23,7 @@ Run this skill for almost every non-trivial local prompt on this repo.
 | Docs-only / typo | `implement-slice` (skip formal plan); Reviewer light; skip QA unless behavior docs claim new behavior |
 | Clear bug with repro | Domain skill + `implement-slice` → `review-changes` → smoke via `qa-acceptance` if user-facing |
 | Feature / multi-file / API contract | `plan-slice` → wait for human OK **if** scope is ambiguous or product-touching → `implement-slice` → `review-changes` → `qa-acceptance` |
+| UI redesign / restyle / “looks AI-slop” | `awesome-design-md` (pick DESIGN.md) + `taste-skill` + `web-ui` → plan if large → `implement-slice` → browser QA |
 | Review request | `review-changes` only |
 | Verify / smoke | `local-dev` + `qa-acceptance` |
 
@@ -32,6 +33,7 @@ Touching these paths ⇒ also read the skill:
 
 - `workers/core` → `core-worker`
 - `apps/web` → `web-ui`
+- Marketing / redesign / visual system → also `taste-skill` + `awesome-design-md`
 - `migrations/` → `d1-migrations`
 - `packages/shared` → `shared-package`
 - Need running stack → `local-dev`

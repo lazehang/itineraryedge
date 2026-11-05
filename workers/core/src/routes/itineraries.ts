@@ -12,6 +12,7 @@ import { jsonResponse } from "../cors.js";
 import type { Env } from "../index.js";
 import { handleGenerateRoute } from "./generate.js";
 import { handlePdfRoute } from "./pdf.js";
+import { handlePlanRoute } from "./plan.js";
 import { handleUnlockMockRoute } from "./unlock-mock.js";
 
 async function requireProfileForEmail(
@@ -49,6 +50,10 @@ export async function handleItinerariesRoute(
   pathname: string,
 ): Promise<Response | null> {
   const url = new URL(request.url);
+
+  if (pathname === "/api/itineraries/plan" || pathname === "/api/itineraries/plan/") {
+    return handlePlanRoute(request, env);
+  }
 
   if (pathname === "/api/itineraries" || pathname === "/api/itineraries/") {
     if (request.method === "GET") {
@@ -104,6 +109,26 @@ export async function handleItinerariesRoute(
   const pdfPolishedMatch = /^\/api\/itineraries\/([^/]+)\/pdf\/polished\/?$/.exec(pathname);
   if (pdfPolishedMatch) {
     const id = pdfPolishedMatch[1];
+    const email = url.searchParams.get("email");
+    const auth = await requireProfileForEmail(request, env.DB, email);
+    if (!auth.ok) {
+      return jsonResponse(request, env, auth.body, { status: auth.status });
+    }
+
+    return handlePdfRoute(
+      request,
+      env,
+      id,
+      auth.profileId,
+      auth.email,
+      auth.displayName,
+      pathname,
+    );
+  }
+
+  const pdfTicketMatch = /^\/api\/itineraries\/([^/]+)\/pdf\/ticket\/?$/.exec(pathname);
+  if (pdfTicketMatch) {
+    const id = pdfTicketMatch[1];
     const email = url.searchParams.get("email");
     const auth = await requireProfileForEmail(request, env.DB, email);
     if (!auth.ok) {

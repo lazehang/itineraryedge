@@ -52,9 +52,11 @@ export default {
         routes: [
           "/health",
           "GET/POST /api/itineraries",
+          "POST /api/itineraries/plan",
           "GET /api/itineraries/:id",
           "POST /api/itineraries/:id/generate",
           "GET /api/itineraries/:id/pdf",
+          "GET /api/itineraries/:id/pdf/ticket",
           "GET /api/itineraries/:id/pdf/polished",
           "POST /api/itineraries/:id/unlock-mock",
         ],

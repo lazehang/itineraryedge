@@ -106,19 +106,23 @@ export function GenerateCard({ itineraryId, email, initialItinerary }: Props) {
   };
 
   return (
-    <section className="card stack" style={{ marginTop: "1rem" }}>
+    <section className="ai-workspace stack" style={{ marginTop: "var(--space-m)" }}>
       <div className="card-heading">
-        <h2 className="section-title">Generate open-mode packet</h2>
-        {driverName ? <span className="badge">Driver: {driverName}</span> : null}
+        <h2 className="section-title">AI schedule generation</h2>
+        <div className="packet-badges">
+          <span className="badge badge-ai">AI</span>
+          {driverName ? <span className="badge">Driver: {driverName}</span> : null}
+        </div>
       </div>
 
       <p className="muted text-sm">
-        Uses the mock driver when no BYOK key is saved in this browser session. Optional keys are
-        sent only as <code>X-BYOK-Key</code> on generate requests (never stored in D1).
+        Generate structured flights, hotels, and a sightseeing timeline. Mock mode works without a
+        key. An optional model key stays in this browser session only and is sent as{" "}
+        <code>X-BYOK-Key</code> — never stored in the database.
       </p>
 
       <div className="stack byok-panel">
-        <label htmlFor="byok-key">BYOK AI key (session only)</label>
+        <label htmlFor="byok-key">Model API key (session only)</label>
         <div className="inline-actions">
           <input
             id="byok-key"

@@ -25,8 +25,11 @@ export async function runItineraryGeneration(input: {
   payload: TravelItinerary;
   destinationCountry: string;
   driver: GenerationDriver;
+  userPlanPrompt?: string;
 }): Promise<GenerationSuccess | GenerationFailure> {
-  const context = buildGenerationContext(input.payload, input.destinationCountry);
+  const context = buildGenerationContext(input.payload, input.destinationCountry, {
+    userPlanPrompt: input.userPlanPrompt,
+  });
   if (!context) {
     return {
       ok: false,

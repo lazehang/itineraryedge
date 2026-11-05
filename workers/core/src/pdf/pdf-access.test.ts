@@ -17,5 +17,7 @@ describe("resolvePdfVariant", () => {
     );
     assert.equal(resolvePdfVariant("/api/itineraries/abc/pdf", "standard"), "standard");
     assert.equal(resolvePdfVariant("/api/itineraries/abc/pdf", null), "standard");
+    assert.equal(resolvePdfVariant("/api/itineraries/abc/pdf/ticket", null), "ticket");
+    assert.equal(resolvePdfVariant("/api/itineraries/abc/pdf", "ticket"), "ticket");
   });
 });

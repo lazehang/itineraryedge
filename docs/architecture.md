@@ -31,16 +31,19 @@ flowchart LR
 
 ## BYOK generation
 
-Optional **bring-your-own-key** AI: the browser may send `X-BYOK-Key` on generate requests; keys stay in sessionStorage on the client or in Wrangler secrets on the server. Without a key, the **mock** driver produces deterministic sample JSON.
+Optional **bring-your-own-key** AI: the browser may send `X-BYOK-Key` on generate (and plan) requests; keys stay in sessionStorage on the client or in Wrangler secrets on the server. Without a key, the **mock** driver produces deterministic sample JSON.
+
+**Prompt planning:** `POST /api/itineraries/plan` accepts free-text trip descriptions, extracts structured fields when needed, creates a draft, and generates an **illustrative** schedule (no live GDS/hotel APIs). Extract fails closed on ambiguous passport nationality / destination (no silent invention); optional structured hints override when provided.
 
 ## Travel packet PDFs
 
 After generation, the core worker builds PDFs with **pdf-lib** from stored flight, hotel, and sightseeing JSON:
 
 - **Standard** — always available once generation exists.
+- **Flight coupon (ticket)** — free illustrative e-ticket-style coupon from flight segments; prominently marked not a valid ticket; no unlock required.
 - **Polished** — premium layout; requires `is_premium_unlocked` (mock unlock in staging, or Worker B after paid checkout in production).
 
-Both variants embed visa/travel disclaimers in the PDF body.
+Packet variants embed visa/travel disclaimers; the coupon PDF uses a separate “not a valid ticket” banner and disclaimer.
 
 ## What stays out of the public repo
 

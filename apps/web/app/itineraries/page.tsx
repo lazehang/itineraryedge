@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { listItineraries } from "@/lib/core-api";
 import { ItineraryListByEmail } from "./ItineraryListByEmail";
+
+export const metadata: Metadata = {
+  title: "My itineraries",
+};
 
 type PageProps = {
   searchParams: Promise<{ email?: string }>;
@@ -14,22 +19,25 @@ export default async function ItinerariesPage({ searchParams }: PageProps) {
   const itineraries = email ? await listItineraries(email) : [];
 
   return (
-    <main>
-      <p className="badge">Your drafts</p>
-      <h1>Itineraries</h1>
-      <p className="lede muted">
-        Look up drafts saved under your email. Create a new itinerary anytime.
-      </p>
+    <main id="main" className="main--narrow">
+      <div className="page-kicker">
+        <p className="eyebrow">Saved drafts</p>
+        <Link href="/itineraries/new" className="btn btn-secondary">
+          New itinerary
+        </Link>
+      </div>
+      <h1>My itineraries</h1>
+      <p className="lede muted">Look up drafts saved under your email address.</p>
 
-      <section className="card stack" style={{ marginTop: "1.5rem" }}>
+      <section className="sheet stack" style={{ marginTop: "var(--space-l)" }}>
         <Suspense fallback={<p className="muted">Loading…</p>}>
           <ItineraryListByEmail />
         </Suspense>
       </section>
 
       {email ? (
-        <section className="stack" style={{ marginTop: "1.5rem" }}>
-          <h2 className="section-title">Results for {email}</h2>
+        <section className="stack" style={{ marginTop: "var(--space-xl)" }}>
+          <p className="eyebrow">Results for {email}</p>
           {itineraries.length === 0 ? (
             <p className="muted">
               No itineraries yet.{" "}
@@ -41,7 +49,7 @@ export default async function ItinerariesPage({ searchParams }: PageProps) {
                 <li key={item.id}>
                   <Link
                     href={`/itineraries/${item.id}?email=${encodeURIComponent(email)}`}
-                    className="itinerary-list__link card"
+                    className="itinerary-list__link"
                   >
                     <span className="itinerary-list__title">{item.title}</span>
                     <span className="muted itinerary-list__meta">
@@ -56,8 +64,8 @@ export default async function ItinerariesPage({ searchParams }: PageProps) {
         </section>
       ) : null}
 
-      <p className="muted" style={{ marginTop: "1.5rem" }}>
-        <Link href="/itineraries/new">Create itinerary</Link> · <Link href="/">Home</Link>
+      <p className="page-links">
+        <Link href="/">Home</Link>
       </p>
     </main>
   );

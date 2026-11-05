@@ -27,7 +27,9 @@ export function createOpenAiDriver(apiKey: string): GenerationDriver {
             },
             {
               role: "user",
-              content: buildGenerationPrompt(context),
+              content: buildGenerationPrompt(context, {
+                userPlanPrompt: context.userPlanPrompt,
+              }),
             },
           ],
           temperature: 0.2,

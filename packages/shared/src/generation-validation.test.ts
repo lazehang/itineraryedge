@@ -129,6 +129,54 @@ describe("validateGenerationBundle", () => {
     assert.equal(result.ok, false);
   });
 
+  it("accepts optional IATA airports and bookingRef on flight segments", () => {
+    const result = validateFlightSchedule({
+      schemaVersion: GENERATION_SCHEMA_VERSION,
+      segments: [
+        {
+          ...validFlights.segments[0],
+          origin: "New York",
+          destination: "Tokyo",
+          originAirport: "jfk",
+          destinationAirport: "nrt",
+          bookingRef: "abc12x",
+          cabinClass: "Economy",
+          seat: "14A",
+          terminal: "1",
+        },
+        {
+          ...validFlights.segments[1],
+          origin: "Tokyo",
+          destination: "New York",
+          originAirport: "NRT",
+          destinationAirport: "JFK",
+          bookingRef: "ABC12X",
+          cabinClass: "Economy",
+        },
+      ],
+    });
+    assert.equal(result.ok, true);
+    if (!result.ok) {
+      return;
+    }
+    assert.equal(result.value.segments[0]?.originAirport, "JFK");
+    assert.equal(result.value.segments[0]?.bookingRef, "ABC12X");
+  });
+
+  it("rejects invalid IATA airport codes when present", () => {
+    const result = validateFlightSchedule({
+      schemaVersion: GENERATION_SCHEMA_VERSION,
+      segments: [
+        {
+          ...validFlights.segments[0],
+          originAirport: "JF",
+        },
+        validFlights.segments[1],
+      ],
+    });
+    assert.equal(result.ok, false);
+  });
+
   it("rejects hotel inventory without hotels", () => {
     const result = validateHotelInventory({
       schemaVersion: GENERATION_SCHEMA_VERSION,

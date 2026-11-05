@@ -24,7 +24,9 @@ export function createAnthropicDriver(apiKey: string): GenerationDriver {
           messages: [
             {
               role: "user",
-              content: buildGenerationPrompt(context),
+              content: buildGenerationPrompt(context, {
+                userPlanPrompt: context.userPlanPrompt,
+              }),
             },
           ],
         }),

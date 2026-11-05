@@ -10,8 +10,8 @@ Drive work from a **local** Cursor Agent in this checkout. Follow [docs/ai-playb
 
 ## Route the prompt
 
-1. **Classify** — docs / bugfix / feature / review / QA / infra.
-2. **Load skill** — `drive-local` for end-to-end; domain skills when editing those trees.
+1. **Classify** — docs / bugfix / feature / redesign / review / QA / infra.
+2. **Load skill** — `drive-local` for end-to-end; domain skills when editing those trees. UI redesign → `taste-skill` + `awesome-design-md` + `web-ui`.
 3. **Plan when needed** — multi-file features, API contract changes, unlock/billing-adjacent work → `plan-slice` before coding.
 4. **Implement** — `implement-slice`; keep diffs focused.
 5. **Review + QA** — `review-changes`; behavior changes also `qa-acceptance`.

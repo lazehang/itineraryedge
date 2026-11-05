@@ -8,7 +8,7 @@ export function SiteHeader() {
           ItineraryEdge
         </Link>
         <nav className="site-nav" aria-label="Primary">
-          <Link href="/itineraries/new">Create</Link>
+          <Link href="/itineraries/new">New itinerary</Link>
           <Link href="/itineraries">My itineraries</Link>
         </nav>
       </div>
